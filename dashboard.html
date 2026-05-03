@@ -4,1267 +4,1415 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DiamondUT — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
- :root {
-   --gold: #F5C518;
-   --gold-glow: rgba(245,197,24,0.25);
-   --red: #E8433B;
-   --green: #27C96A;
-   --blue: #3B8BF5;
-   --platinum: #A8D8EA;
-   --bronze: #CD7F32;
-   --silver: #B8C4CC;
-   --bg: #080A0F;
-   --surface: #0F1218;
-   --surface2: #161B24;
-   --surface3: #1D2433;
-   --border: #1F2733;
-   --border2: #2A3444;
-   --text: #E8ECF4;
-   --muted: #5A6478;
-   --muted2: #3D4658;
- }
-- { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-background: var(–bg);
-color: var(–text);
-font-family: ‘DM Sans’, sans-serif;
-min-height: 100vh;
-display: flex;
-overflow-x: hidden;
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
+/* FALLBACK FONTS IN CASE GOOGLE FONTS FAILS */
+:root {
+ --font-display: 'Bebas Neue', 'Arial Black', sans-serif;
+ --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+ --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+ --gold: #F5C518;
+ --gold2: #FFE066;
+ --gold-glow: rgba(245,197,24,0.3);
+ --red: #E8433B;
+ --green: #27C96A;
+ --blue: #3B8BF5;
+ --platinum-c: #A8D8EA;
+ --bronze-c: #CD7F32;
+ --silver-c: #C8D4DC;
+ --bg: #060810;
+ --bg2: #0A0D14;
+ --surface: #0F1218;
+ --surface2: #151B25;
+ --surface3: #1C2333;
+ --border: #1E2535;
+ --border2: #283044;
+ --text: #E8ECF4;
+ --muted: #5A6A82;
+ --muted2: #3A4558;
 }
-/* ── SIDEBAR ── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+ background: var(--bg);
+ color: var(--text);
+ font-family: var(--font-body);
+ min-height: 100vh;
+ display: flex;
+ overflow-x: hidden;
+ background-image:
+   radial-gradient(ellipse at 20% 0%, rgba(245,197,24,0.04) 0%, transparent 50%),
+   radial-gradient(ellipse at 80% 100%, rgba(59,139,245,0.04) 0%, transparent 50%);
+}
+/* ═══════════════════════════════════
+  SIDEBAR
+═══════════════════════════════════ */
 .sidebar {
-width: 220px;
-min-height: 100vh;
-background: var(–surface);
-border-right: 1px solid var(–border);
-display: flex;
-flex-direction: column;
-position: fixed;
-top: 0; left: 0;
-z-index: 100;
-padding: 0 0 24px;
+ width: 230px;
+ min-height: 100vh;
+ background: var(--surface);
+ border-right: 1px solid var(--border);
+ display: flex;
+ flex-direction: column;
+ position: fixed;
+ top: 0; left: 0;
+ z-index: 200;
 }
 .logo {
-padding: 24px 20px 20px;
-border-bottom: 1px solid var(–border);
+ padding: 22px 20px;
+ border-bottom: 1px solid var(--border);
+ display: flex;
+ align-items: center;
+ gap: 10px;
 }
-.logo-mark {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 22px;
-letter-spacing: 2px;
-color: var(–gold);
-line-height: 1;
+.logo-diamond {
+ width: 36px;
+ height: 36px;
+ background: linear-gradient(135deg, var(--gold), #FF8C00);
+ clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+ flex-shrink: 0;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 14px;
 }
-.logo-sub {
-font-size: 10px;
-color: var(–muted);
-font-family: ‘JetBrains Mono’, monospace;
-letter-spacing: 1px;
-margin-top: 3px;
-}
-.nav {
-padding: 16px 12px;
-flex: 1;
-display: flex;
-flex-direction: column;
-gap: 2px;
-}
-.nav-label {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-letter-spacing: 2px;
-color: var(–muted2);
-padding: 10px 8px 6px;
-text-transform: uppercase;
+.logo-text { line-height: 1; }
+.logo-name { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; color: var(--gold); }
+.logo-sub { font-family: var(--font-mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+.nav { padding: 14px 12px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.nav-section {
+ font-family: var(--font-mono);
+ font-size: 9px;
+ letter-spacing: 2px;
+ color: var(--muted2);
+ padding: 10px 8px 5px;
+ text-transform: uppercase;
 }
 .nav-item {
-display: flex;
-align-items: center;
-gap: 10px;
-padding: 9px 10px;
-border-radius: 7px;
-font-size: 13px;
-font-weight: 500;
-color: var(–muted);
-cursor: pointer;
-transition: all 0.15s;
-text-decoration: none;
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ padding: 9px 10px;
+ border-radius: 8px;
+ font-size: 13px;
+ font-weight: 500;
+ color: var(--muted);
+ cursor: pointer;
+ transition: all 0.15s;
+ text-decoration: none;
+ position: relative;
 }
-.nav-item:hover { background: var(–surface2); color: var(–text); }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
 .nav-item.active {
-background: rgba(245,197,24,0.1);
-color: var(–gold);
-border: 1px solid rgba(245,197,24,0.2);
+ background: rgba(245,197,24,0.1);
+ color: var(--gold);
+ border: 1px solid rgba(245,197,24,0.2);
 }
-.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-item.active::before {
+ content: '';
+ position: absolute;
+ left: -12px;
+ top: 50%;
+ transform: translateY(-50%);
+ width: 3px;
+ height: 60%;
+ background: var(--gold);
+ border-radius: 0 2px 2px 0;
+}
+.nav-icon { font-size: 15px; width: 20px; text-align: center; }
 .nav-badge {
-margin-left: auto;
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 10px;
-background: var(–red);
-color: white;
-padding: 1px 6px;
-border-radius: 99px;
+ margin-left: auto;
+ font-family: var(--font-mono);
+ font-size: 9px;
+ background: var(--red);
+ color: white;
+ padding: 2px 6px;
+ border-radius: 99px;
+ font-weight: 700;
 }
-.sidebar-coins {
-margin: 0 12px;
-background: var(–surface2);
-border: 1px solid var(–border2);
-border-radius: 10px;
-padding: 14px;
+.coin-widget {
+ margin: 12px;
+ background: linear-gradient(135deg, rgba(245,197,24,0.08), rgba(245,197,24,0.03));
+ border: 1px solid rgba(245,197,24,0.2);
+ border-radius: 10px;
+ padding: 14px;
 }
-.sidebar-coins-label {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-letter-spacing: 2px;
-color: var(–muted);
-text-transform: uppercase;
-}
-.sidebar-coins-val {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 28px;
-color: var(–gold);
-line-height: 1.2;
-margin-top: 2px;
-}
-.sidebar-coins-sub {
-font-size: 11px;
-color: var(–muted);
-margin-top: 2px;
-}
-.coin-bar-wrap {
-margin-top: 8px;
-height: 4px;
-background: var(–border2);
-border-radius: 99px;
-overflow: hidden;
-}
-.coin-bar {
-height: 100%;
-width: 68%;
-background: linear-gradient(90deg, var(–gold), #FFE066);
-border-radius: 99px;
-}
-/* ── MAIN ── */
-.main {
-margin-left: 220px;
-flex: 1;
-display: flex;
-flex-direction: column;
-min-height: 100vh;
-}
-/* ── TOPBAR ── */
+.coin-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.coin-amount { font-family: var(--font-display); font-size: 34px; color: var(--gold); line-height: 1.1; margin-top: 2px; }
+.coin-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.coin-track { height: 4px; background: var(--border2); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+.coin-fill { height: 100%; width: 68%; background: linear-gradient(90deg, var(--gold), var(--gold2)); border-radius: 99px; }
+/* ═══════════════════════════════════
+  MAIN
+═══════════════════════════════════ */
+.main { margin-left: 230px; flex: 1; display: flex; flex-direction: column; }
+/* TOPBAR */
 .topbar {
-height: 60px;
-background: var(–surface);
-border-bottom: 1px solid var(–border);
-display: flex;
-align-items: center;
-padding: 0 28px;
-gap: 16px;
-position: sticky;
-top: 0;
-z-index: 50;
+ height: 58px;
+ background: var(--surface);
+ border-bottom: 1px solid var(--border);
+ display: flex;
+ align-items: center;
+ padding: 0 28px;
+ gap: 14px;
+ position: sticky;
+ top: 0;
+ z-index: 100;
 }
-.topbar-title {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 20px;
-letter-spacing: 2px;
-color: var(–text);
-flex: 1;
-}
-.week-badge {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 11px;
-color: var(–muted);
-background: var(–surface2);
-border: 1px solid var(–border2);
-padding: 4px 12px;
-border-radius: 99px;
+.topbar-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 3px; color: var(--text); flex: 1; }
+.week-pill {
+ font-family: var(--font-mono);
+ font-size: 10px;
+ color: var(--muted);
+ background: var(--surface2);
+ border: 1px solid var(--border2);
+ padding: 5px 12px;
+ border-radius: 99px;
 }
 .sport-toggle {
-display: flex;
-background: var(–surface2);
-border: 1px solid var(–border2);
-border-radius: 7px;
-overflow: hidden;
+ display: flex;
+ background: var(--surface2);
+ border: 1px solid var(--border2);
+ border-radius: 7px;
+ overflow: hidden;
 }
 .sport-btn {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 11px;
-padding: 6px 14px;
-cursor: pointer;
-color: var(–muted);
-transition: all 0.15s;
-border: none;
-background: none;
+ font-family: var(--font-mono);
+ font-size: 11px;
+ font-weight: 700;
+ padding: 6px 16px;
+ cursor: pointer;
+ color: var(--muted);
+ border: none;
+ background: none;
+ transition: all 0.15s;
+ letter-spacing: 1px;
 }
-.sport-btn.active {
-background: var(–gold);
-color: var(–bg);
-font-weight: 700;
+.sport-btn.active { background: var(--gold); color: var(--bg); }
+.user-avatar {
+ width: 34px; height: 34px;
+ border-radius: 50%;
+ background: linear-gradient(135deg, var(--gold), var(--red));
+ display: flex; align-items: center; justify-content: center;
+ font-family: var(--font-display);
+ font-size: 14px;
+ color: var(--bg);
+ cursor: pointer;
 }
-.avatar {
-width: 32px;
-height: 32px;
-border-radius: 50%;
-background: linear-gradient(135deg, var(–gold), var(–red));
-display: flex;
-align-items: center;
-justify-content: center;
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 14px;
-color: var(–bg);
-}
-/* ── CONTENT ── */
-.content {
-padding: 24px 28px;
-display: grid;
-gap: 20px;
-}
-/* ── STAT CARDS ROW ── */
-.stats-row {
-display: grid;
-grid-template-columns: repeat(4, 1fr);
-gap: 14px;
-}
+/* ═══════════════════════════════════
+  CONTENT AREA
+═══════════════════════════════════ */
+.content { padding: 24px 28px 60px; display: flex; flex-direction: column; gap: 22px; }
+/* STAT ROW */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .stat-card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 10px;
-padding: 16px 18px;
-position: relative;
-overflow: hidden;
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 18px 20px;
+ position: relative;
+ overflow: hidden;
+ transition: transform 0.2s;
 }
-.stat-card::before {
-content: ‘’;
-position: absolute;
-top: 0; left: 0; right: 0;
-height: 2px;
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card::after {
+ content: '';
+ position: absolute;
+ top: 0; left: 0; right: 0;
+ height: 2px;
+ border-radius: 12px 12px 0 0;
 }
-.stat-card.gold::before { background: var(–gold); }
-.stat-card.green::before { background: var(–green); }
-.stat-card.red::before { background: var(–red); }
-.stat-card.blue::before { background: var(–blue); }
-.stat-label {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-letter-spacing: 2px;
-color: var(–muted);
-text-transform: uppercase;
+.stat-card.s-gold::after { background: var(--gold); }
+.stat-card.s-green::after { background: var(--green); }
+.stat-card.s-blue::after { background: var(--blue); }
+.stat-card.s-red::after { background: var(--red); }
+.stat-bg-icon {
+ position: absolute;
+ right: 14px; top: 50%;
+ transform: translateY(-50%);
+ font-size: 40px;
+ opacity: 0.05;
 }
-.stat-val {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 36px;
-line-height: 1.1;
-margin-top: 4px;
+.stat-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.stat-value { font-family: var(--font-display); font-size: 42px; line-height: 1.1; margin-top: 4px; }
+.stat-card.s-gold .stat-value { color: var(--gold); }
+.stat-card.s-green .stat-value { color: var(--green); }
+.stat-card.s-blue .stat-value { color: var(--blue); }
+.stat-card.s-red .stat-value { color: var(--red); }
+.stat-note { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.stat-note .up { color: var(--green); }
+.stat-note .dn { color: var(--red); }
+/* ═══════════════════════════════════
+  PLAYER CARDS (Diamond Dynasty Style)
+═══════════════════════════════════ */
+.cards-section {}
+.section-header {
+ display: flex; align-items: center; justify-content: space-between;
+ margin-bottom: 16px;
 }
-.stat-card.gold .stat-val { color: var(–gold); }
-.stat-card.green .stat-val { color: var(–green); }
-.stat-card.red .stat-val { color: var(–red); }
-.stat-card.blue .stat-val { color: var(–blue); }
-.stat-sub {
-font-size: 11px;
-color: var(–muted);
-margin-top: 2px;
+.section-title { font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; color: var(--text); }
+.section-action {
+ font-family: var(--font-mono);
+ font-size: 10px;
+ color: var(--gold);
+ border: 1px solid rgba(245,197,24,0.3);
+ padding: 5px 12px;
+ border-radius: 5px;
+ cursor: pointer;
+ text-decoration: none;
+ transition: all 0.15s;
 }
-.stat-sub span { color: var(–green); }
-.stat-sub span.down { color: var(–red); }
-/* ── TWO COL ── */
-.two-col {
-display: grid;
-grid-template-columns: 1fr 340px;
-gap: 20px;
+.section-action:hover { background: rgba(245,197,24,0.1); }
+.cards-scroll {
+ display: flex;
+ gap: 14px;
+ overflow-x: auto;
+ padding-bottom: 12px;
 }
-/* ── PANEL ── */
+.cards-scroll::-webkit-scrollbar { height: 3px; }
+.cards-scroll::-webkit-scrollbar-track { background: transparent; }
+.cards-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+/* THE CARD ITSELF */
+.player-card {
+ flex-shrink: 0;
+ width: 150px;
+ height: 210px;
+ border-radius: 12px;
+ position: relative;
+ overflow: hidden;
+ cursor: pointer;
+ transition: transform 0.25s, box-shadow 0.25s;
+}
+.player-card:hover {
+ transform: translateY(-8px) scale(1.03);
+}
+/* Tier backgrounds */
+.player-card.bronze {
+ background: linear-gradient(160deg, #2a1500, #1a0d00);
+ border: 1px solid rgba(205,127,50,0.5);
+ box-shadow: 0 4px 20px rgba(205,127,50,0.15);
+}
+.player-card.bronze:hover { box-shadow: 0 12px 40px rgba(205,127,50,0.35); }
+.player-card.silver {
+ background: linear-gradient(160deg, #1a1f25, #0f1318);
+ border: 1px solid rgba(200,212,220,0.4);
+ box-shadow: 0 4px 20px rgba(200,212,220,0.1);
+}
+.player-card.silver:hover { box-shadow: 0 12px 40px rgba(200,212,220,0.25); }
+.player-card.gold {
+ background: linear-gradient(160deg, #1f1500, #120d00);
+ border: 1px solid rgba(245,197,24,0.5);
+ box-shadow: 0 4px 20px rgba(245,197,24,0.2);
+}
+.player-card.gold:hover { box-shadow: 0 12px 40px rgba(245,197,24,0.4); }
+.player-card.platinum {
+ background: linear-gradient(160deg, #0a1520, #060d18);
+ border: 1px solid rgba(168,216,234,0.5);
+ box-shadow: 0 4px 20px rgba(168,216,234,0.15);
+}
+.player-card.platinum:hover { box-shadow: 0 12px 40px rgba(168,216,234,0.35); }
+.player-card.legendary {
+ background: linear-gradient(160deg, #1a1000, #0d0800);
+ border: 1px solid rgba(245,197,24,0.8);
+ box-shadow: 0 4px 30px rgba(245,197,24,0.3);
+}
+.player-card.legendary:hover { box-shadow: 0 14px 50px rgba(245,197,24,0.6); }
+/* Card shine overlay */
+.card-shine {
+ position: absolute;
+ inset: 0;
+ background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%, rgba(255,255,255,0.02) 100%);
+ pointer-events: none;
+}
+/* Legendary animated shimmer */
+.player-card.legendary .card-shine {
+ background: linear-gradient(135deg, rgba(245,197,24,0.1) 0%, transparent 40%, rgba(245,197,24,0.08) 80%);
+ animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+ 0%, 100% { opacity: 1; }
+ 50% { opacity: 0.5; }
+}
+/* Tier corner badge */
+.card-tier {
+ position: absolute;
+ top: 8px; left: 8px;
+ font-family: var(--font-display);
+ font-size: 9px;
+ letter-spacing: 1px;
+ padding: 3px 7px;
+ border-radius: 4px;
+ z-index: 10;
+}
+.bronze .card-tier { background: rgba(205,127,50,0.25); color: #CD7F32; border: 1px solid rgba(205,127,50,0.4); }
+.silver .card-tier { background: rgba(200,212,220,0.15); color: #C8D4DC; border: 1px solid rgba(200,212,220,0.3); }
+.gold .card-tier { background: rgba(245,197,24,0.2); color: var(--gold); border: 1px solid rgba(245,197,24,0.4); }
+.platinum .card-tier { background: rgba(168,216,234,0.15); color: var(--platinum-c); border: 1px solid rgba(168,216,234,0.3); }
+.legendary .card-tier { background: rgba(245,197,24,0.3); color: var(--gold); border: 1px solid var(--gold); }
+/* Coin value top right */
+.card-coin {
+ position: absolute;
+ top: 8px; right: 8px;
+ font-family: var(--font-mono);
+ font-size: 10px;
+ font-weight: 700;
+ z-index: 10;
+}
+.bronze .card-coin { color: #CD7F32; }
+.silver .card-coin { color: #C8D4DC; }
+.gold .card-coin { color: var(--gold); }
+.platinum .card-coin { color: var(--platinum-c); }
+.legendary .card-coin { color: var(--gold); }
+/* Player silhouette area */
+.card-art {
+ position: absolute;
+ top: 28px;
+ left: 0; right: 0;
+ height: 115px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ overflow: hidden;
+}
+/* SVG silhouette */
+.silhouette {
+ width: 90px;
+ height: 105px;
+ opacity: 0.85;
+}
+.bronze .silhouette { fill: rgba(205,127,50,0.4); filter: drop-shadow(0 4px 8px rgba(205,127,50,0.3)); }
+.silver .silhouette { fill: rgba(200,212,220,0.35); filter: drop-shadow(0 4px 8px rgba(200,212,220,0.25)); }
+.gold .silhouette { fill: rgba(245,197,24,0.4); filter: drop-shadow(0 4px 12px rgba(245,197,24,0.4)); }
+.platinum .silhouette { fill: rgba(168,216,234,0.45); filter: drop-shadow(0 4px 12px rgba(168,216,234,0.4)); }
+.legendary .silhouette { fill: rgba(245,197,24,0.55); filter: drop-shadow(0 6px 20px rgba(245,197,24,0.6)); }
+/* Divider line */
+.card-divider {
+ position: absolute;
+ top: 143px;
+ left: 10px; right: 10px;
+ height: 1px;
+}
+.bronze .card-divider { background: rgba(205,127,50,0.3); }
+.silver .card-divider { background: rgba(200,212,220,0.2); }
+.gold .card-divider { background: rgba(245,197,24,0.3); }
+.platinum .card-divider { background: rgba(168,216,234,0.3); }
+.legendary .card-divider { background: rgba(245,197,24,0.5); }
+/* Card info bottom */
+.card-info {
+ position: absolute;
+ bottom: 0; left: 0; right: 0;
+ padding: 8px 10px 10px;
+ background: rgba(0,0,0,0.5);
+}
+.card-name {
+ font-family: var(--font-display);
+ font-size: 15px;
+ letter-spacing: 1px;
+ line-height: 1;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+.bronze .card-name { color: #E8C070; }
+.silver .card-name { color: #E0EAEE; }
+.gold .card-name { color: var(--gold); }
+.platinum .card-name { color: var(--platinum-c); }
+.legendary .card-name { color: var(--gold); text-shadow: 0 0 10px rgba(245,197,24,0.6); }
+.card-pos-team {
+ font-family: var(--font-mono);
+ font-size: 9px;
+ color: var(--muted);
+ margin-top: 3px;
+ display: flex;
+ justify-content: space-between;
+}
+.card-pts {
+ font-family: var(--font-mono);
+ font-size: 11px;
+ font-weight: 700;
+ margin-top: 4px;
+ color: var(--green);
+}
+.card-pts.zero { color: var(--muted); }
+.card-pts.injured { color: var(--red); }
+/* Legendary crown */
+.card-crown {
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ font-size: 22px;
+ z-index: 5;
+ filter: drop-shadow(0 0 8px rgba(245,197,24,0.8));
+}
+/* Injured overlay */
+.card-injured-overlay {
+ position: absolute;
+ inset: 0;
+ background: rgba(232,67,59,0.08);
+ border: 1px solid rgba(232,67,59,0.3);
+ border-radius: 12px;
+ display: flex;
+ align-items: flex-end;
+ justify-content: center;
+ padding-bottom: 50px;
+ pointer-events: none;
+}
+.injured-badge {
+ font-family: var(--font-mono);
+ font-size: 9px;
+ font-weight: 700;
+ color: var(--red);
+ background: rgba(232,67,59,0.2);
+ border: 1px solid rgba(232,67,59,0.4);
+ padding: 2px 8px;
+ border-radius: 99px;
+}
+/* ═══════════════════════════════════
+  CAP BAR
+═══════════════════════════════════ */
+.cap-bar-wrap {
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: 10px;
+ padding: 16px 20px;
+ display: flex;
+ align-items: center;
+ gap: 20px;
+}
+.cap-bar-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); white-space: nowrap; }
+.cap-bar-track { flex: 1; height: 6px; background: var(--border2); border-radius: 99px; overflow: hidden; }
+.cap-bar-fill { height: 100%; width: 87%; background: linear-gradient(90deg, var(--green), var(--gold)); border-radius: 99px; }
+.cap-bar-val { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--gold); white-space: nowrap; }
+/* ═══════════════════════════════════
+  MAIN GRID
+═══════════════════════════════════ */
+.main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+/* PANEL */
 .panel {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 12px;
-overflow: hidden;
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ overflow: hidden;
 }
 .panel-head {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 16px 20px;
-border-bottom: 1px solid var(–border);
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 15px 18px;
+ border-bottom: 1px solid var(--border);
 }
-.panel-title {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 16px;
-letter-spacing: 2px;
-color: var(–text);
-}
-.panel-action {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 10px;
-color: var(–gold);
-cursor: pointer;
-text-decoration: none;
-border: 1px solid rgba(245,197,24,0.3);
-padding: 4px 10px;
-border-radius: 4px;
-transition: all 0.15s;
-}
-.panel-action:hover { background: rgba(245,197,24,0.1); }
-/* ── ROSTER ── */
-.roster-body { padding: 12px; }
-.position-group { margin-bottom: 8px; }
-.pos-label {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-letter-spacing: 2px;
-color: var(–muted2);
-padding: 4px 8px;
-text-transform: uppercase;
-}
-.player-row {
-display: flex;
-align-items: center;
-gap: 10px;
-padding: 8px 10px;
-border-radius: 7px;
-cursor: pointer;
-transition: background 0.1s;
-}
-.player-row:hover { background: var(–surface2); }
-.player-pos {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-color: var(–muted);
-width: 28px;
-text-align: center;
-background: var(–surface2);
-border: 1px solid var(–border2);
-border-radius: 4px;
-padding: 2px 0;
-}
-.tier-dot {
-width: 8px;
-height: 8px;
-border-radius: 50%;
-flex-shrink: 0;
-}
-.tier-dot.bronze { background: var(–bronze); }
-.tier-dot.silver { background: var(–silver); }
-.tier-dot.gold { background: var(–gold); }
-.tier-dot.platinum { background: var(–platinum); }
-.tier-dot.legendary { background: linear-gradient(135deg, var(–gold), var(–red)); }
-.player-name {
-flex: 1;
-font-size: 13px;
-font-weight: 500;
-}
-.player-team {
-font-size: 11px;
-color: var(–muted);
-}
-.player-pts {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 12px;
-color: var(–green);
-font-weight: 600;
-}
-.player-pts.zero { color: var(–muted); }
-.player-coin {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 10px;
-color: var(–muted);
-background: var(–surface2);
-padding: 2px 6px;
-border-radius: 4px;
-}
-.injured-tag {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-color: var(–red);
-background: rgba(232,67,59,0.1);
-border: 1px solid rgba(232,67,59,0.2);
-padding: 1px 5px;
-border-radius: 3px;
-}
-.bench-divider {
-display: flex;
-align-items: center;
-gap: 8px;
-margin: 8px 10px;
-}
-.bench-divider span {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-color: var(–muted2);
-letter-spacing: 1px;
-white-space: nowrap;
-}
-.bench-divider::before,
-.bench-divider::after {
-content: ‘’;
-flex: 1;
-height: 1px;
-background: var(–border);
-}
-.cap-bar-wrap {
-margin: 0 20px 16px;
-padding: 12px;
-background: var(–surface2);
-border: 1px solid var(–border2);
-border-radius: 8px;
-}
-.cap-bar-top {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 6px;
-}
-.cap-bar-label {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 10px;
-color: var(–muted);
-letter-spacing: 1px;
-}
-.cap-bar-val {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 12px;
-color: var(–gold);
-font-weight: 700;
-}
-.cap-bar-track {
-height: 5px;
-background: var(–border2);
-border-radius: 99px;
-overflow: hidden;
-}
-.cap-bar-fill {
-height: 100%;
-width: 87%;
-background: linear-gradient(90deg, var(–green), var(–gold));
-border-radius: 99px;
-}
-/* ── LEGENDARY ── */
-.legendary-panel {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 12px;
-overflow: hidden;
-}
-.legendary-card {
-margin: 16px;
-border-radius: 10px;
-background: linear-gradient(145deg, #1a1200, #0d0800);
-border: 1px solid rgba(245,197,24,0.4);
-padding: 20px;
-position: relative;
-overflow: hidden;
-}
-.legendary-card::before {
-content: ‘’;
-position: absolute;
-inset: 0;
-background: radial-gradient(ellipse at 50% 0%, rgba(245,197,24,0.12), transparent 70%);
-}
-.legendary-badge {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-letter-spacing: 3px;
-color: var(–gold);
-text-transform: uppercase;
-margin-bottom: 10px;
-display: flex;
-align-items: center;
-gap: 6px;
-}
-.legendary-badge::before {
-content: ‘👑’;
-font-size: 12px;
-}
-.legendary-name {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 28px;
-color: var(–gold);
-line-height: 1;
-text-shadow: 0 0 20px rgba(245,197,24,0.4);
-}
-.legendary-detail {
-font-size: 12px;
-color: var(–muted);
-margin-top: 4px;
-}
-.legendary-boosts {
-margin-top: 14px;
-display: flex;
-flex-direction: column;
-gap: 6px;
-}
-.boost-row {
-display: flex;
-align-items: center;
-justify-content: space-between;
-background: rgba(245,197,24,0.07);
-border: 1px solid rgba(245,197,24,0.15);
-border-radius: 6px;
-padding: 7px 10px;
-}
-.boost-desc { font-size: 12px; color: var(–text); }
-.boost-val {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 12px;
-color: var(–gold);
-font-weight: 700;
-}
-.legendary-cost {
-margin: 0 16px 16px;
-padding: 12px;
-background: rgba(232,67,59,0.07);
-border: 1px solid rgba(232,67,59,0.2);
-border-radius: 8px;
-}
-.legendary-cost-label {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 9px;
-letter-spacing: 2px;
-color: var(–red);
-text-transform: uppercase;
-margin-bottom: 6px;
-}
-.legendary-cost-desc {
-font-size: 12px;
-color: var(–muted);
-line-height: 1.5;
-}
-.legendary-cost-desc strong { color: var(–text); }
-.btn {
-display: block;
-margin: 0 16px 16px;
-padding: 11px;
-border-radius: 8px;
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 15px;
-letter-spacing: 2px;
-text-align: center;
-cursor: pointer;
-border: none;
-transition: all 0.15s;
-}
-.btn-gold {
-background: var(–gold);
-color: var(–bg);
-}
-.btn-gold:hover {
-background: #FFE066;
-transform: translateY(-1px);
-box-shadow: 0 4px 20px var(–gold-glow);
-}
-.btn-outline {
-background: transparent;
-border: 1px solid var(–border2);
-color: var(–muted);
-}
-.btn-outline:hover { border-color: var(–gold); color: var(–gold); }
-/* ── AUCTION ── */
-.auction-row {
-display: flex;
-align-items: center;
-gap: 10px;
-padding: 10px 16px;
-border-bottom: 1px solid var(–border);
-transition: background 0.1s;
-cursor: pointer;
-}
-.auction-row:last-child { border-bottom: none; }
-.auction-row:hover { background: var(–surface2); }
-.auction-tier {
-width: 36px;
-height: 36px;
-border-radius: 7px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 12px;
-flex-shrink: 0;
-}
-.auction-tier.gold { background: rgba(245,197,24,0.15); color: var(–gold); border: 1px solid rgba(245,197,24,0.3); }
-.auction-tier.silver { background: rgba(184,196,204,0.1); color: var(–silver); border: 1px solid rgba(184,196,204,0.2); }
-.auction-tier.platinum { background: rgba(168,216,234,0.1); color: var(–platinum); border: 1px solid rgba(168,216,234,0.2); }
-.auction-info { flex: 1; }
-.auction-name { font-size: 13px; font-weight: 600; }
-.auction-pos { font-size: 11px; color: var(–muted); margin-top: 1px; }
-.auction-floor {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 10px;
-color: var(–muted);
-}
-.auction-timer {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 11px;
-color: var(–red);
-text-align: right;
-}
-.auction-timer-label { font-size: 9px; color: var(–muted); }
-.bid-btn {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 10px;
-padding: 5px 10px;
-border-radius: 5px;
-border: 1px solid rgba(245,197,24,0.3);
-background: rgba(245,197,24,0.08);
-color: var(–gold);
-cursor: pointer;
-transition: all 0.15s;
-white-space: nowrap;
-}
-.bid-btn:hover { background: rgba(245,197,24,0.18); }
-/* ── LEADERBOARD ── */
+.panel-title { font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; }
+.panel-link { font-family: var(--font-mono); font-size: 10px; color: var(--gold); text-decoration: none; border: 1px solid rgba(245,197,24,0.3); padding: 4px 10px; border-radius: 4px; transition: all 0.15s; }
+.panel-link:hover { background: rgba(245,197,24,0.1); }
+/* ═══════════════════════════════════
+  LEADERBOARD
+═══════════════════════════════════ */
 .lb-row {
-display: flex;
-align-items: center;
-gap: 12px;
-padding: 10px 16px;
-border-bottom: 1px solid var(–border);
-transition: background 0.1s;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ padding: 11px 18px;
+ border-bottom: 1px solid var(--border);
+ transition: background 0.1s;
 }
 .lb-row:last-child { border-bottom: none; }
-.lb-row.me { background: rgba(245,197,24,0.05); border-left: 2px solid var(–gold); }
-.lb-rank {
-font-family: ‘Bebas Neue’, sans-serif;
-font-size: 20px;
-color: var(–muted2);
-width: 24px;
-text-align: center;
+.lb-row:hover { background: var(--surface2); }
+.lb-row.me { background: rgba(245,197,24,0.05); border-left: 2px solid var(--gold); }
+.lb-rank { font-family: var(--font-display); font-size: 22px; color: var(--muted2); width: 26px; text-align: center; }
+.lb-rank.gold-rank { color: var(--gold); }
+.lb-info { flex: 1; }
+.lb-name { font-size: 13px; font-weight: 600; }
+.lb-record { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.lb-pts { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--green); }
+.lb-delta { font-family: var(--font-mono); font-size: 10px; width: 36px; text-align: right; }
+.lb-delta.up { color: var(--green); }
+.lb-delta.dn { color: var(--red); }
+/* ═══════════════════════════════════
+  LEGENDARY CARD PANEL
+═══════════════════════════════════ */
+.legendary-feature {
+ margin: 14px;
+ border-radius: 12px;
+ background: linear-gradient(160deg, #1c1200, #0e0900);
+ border: 1px solid rgba(245,197,24,0.4);
+ padding: 18px;
+ position: relative;
+ overflow: hidden;
 }
-.lb-rank.top { color: var(–gold); }
-.lb-team { flex: 1; }
-.lb-team-name { font-size: 13px; font-weight: 600; }
-.lb-team-record { font-size: 11px; color: var(–muted); margin-top: 1px; }
-.lb-pts {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 14px;
-color: var(–green);
-font-weight: 700;
+.legendary-feature::before {
+ content: '';
+ position: absolute;
+ top: -20px; left: 50%;
+ transform: translateX(-50%);
+ width: 200px; height: 100px;
+ background: radial-gradient(ellipse, rgba(245,197,24,0.15), transparent 70%);
+ pointer-events: none;
 }
-.lb-change {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 10px;
-color: var(–green);
-width: 36px;
-text-align: right;
+.leg-badge {
+ font-family: var(--font-mono);
+ font-size: 9px;
+ letter-spacing: 3px;
+ color: var(--gold);
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ margin-bottom: 10px;
+ text-transform: uppercase;
 }
-.lb-change.down { color: var(–red); }
-/* ── LIVE FEED ── */
-.live-feed {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 12px;
-overflow: hidden;
+/* Big legendary card visual */
+.leg-card-visual {
+ width: 100%;
+ height: 160px;
+ border-radius: 10px;
+ background: linear-gradient(160deg, #221600, #110b00);
+ border: 1px solid rgba(245,197,24,0.5);
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ padding: 16px;
+ margin-bottom: 14px;
+ position: relative;
+ overflow: hidden;
 }
-.live-dot {
-width: 7px;
-height: 7px;
-border-radius: 50%;
-background: var(–red);
-animation: pulse 1.5s infinite;
+.leg-card-visual::before {
+ content: '';
+ position: absolute;
+ inset: 0;
+ background: linear-gradient(135deg, rgba(245,197,24,0.08) 0%, transparent 60%);
 }
-@keyframes pulse {
-0%, 100% { opacity: 1; transform: scale(1); }
-50% { opacity: 0.5; transform: scale(0.8); }
+.leg-player-art {
+ width: 80px;
+ height: 130px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
 }
+.leg-player-info { flex: 1; padding-left: 14px; z-index: 1; }
+.leg-crown { font-size: 20px; margin-bottom: 4px; }
+.leg-name { font-family: var(--font-display); font-size: 24px; color: var(--gold); line-height: 1; text-shadow: 0 0 15px rgba(245,197,24,0.4); }
+.leg-detail { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.leg-timer {
+ position: absolute;
+ top: 10px; right: 10px;
+ font-family: var(--font-mono);
+ font-size: 10px;
+ color: var(--red);
+ background: rgba(232,67,59,0.1);
+ border: 1px solid rgba(232,67,59,0.2);
+ padding: 3px 8px;
+ border-radius: 99px;
+}
+.boost-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.boost-item {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ background: rgba(245,197,24,0.06);
+ border: 1px solid rgba(245,197,24,0.12);
+ border-radius: 6px;
+ padding: 7px 10px;
+ font-size: 12px;
+}
+.boost-pts { font-family: var(--font-mono); font-size: 12px; color: var(--gold); font-weight: 700; }
+.cost-box {
+ background: rgba(232,67,59,0.07);
+ border: 1px solid rgba(232,67,59,0.2);
+ border-radius: 8px;
+ padding: 10px 12px;
+ font-size: 12px;
+ color: var(--muted);
+ line-height: 1.5;
+ margin-bottom: 12px;
+}
+.cost-box strong { color: var(--text); }
+.btn {
+ width: 100%;
+ padding: 11px;
+ border-radius: 8px;
+ border: none;
+ font-family: var(--font-display);
+ font-size: 15px;
+ letter-spacing: 2px;
+ cursor: pointer;
+ transition: all 0.15s;
+ display: block;
+ text-align: center;
+ margin-bottom: 8px;
+}
+.btn-gold { background: var(--gold); color: var(--bg); }
+.btn-gold:hover { background: var(--gold2); transform: translateY(-1px); box-shadow: 0 6px 20px var(--gold-glow); }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+/* ═══════════════════════════════════
+  BOTTOM THREE COLS
+═══════════════════════════════════ */
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+/* AUCTION */
+.auction-item {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ padding: 10px 16px;
+ border-bottom: 1px solid var(--border);
+ transition: background 0.1s;
+ cursor: pointer;
+}
+.auction-item:last-child { border-bottom: none; }
+.auction-item:hover { background: var(--surface2); }
+.auction-badge {
+ width: 38px; height: 38px;
+ border-radius: 8px;
+ display: flex; align-items: center; justify-content: center;
+ font-family: var(--font-display);
+ font-size: 11px;
+ flex-shrink: 0;
+}
+.auction-badge.gold { background: rgba(245,197,24,0.1); color: var(--gold); border: 1px solid rgba(245,197,24,0.25); }
+.auction-badge.silver { background: rgba(200,212,220,0.08); color: var(--silver-c); border: 1px solid rgba(200,212,220,0.2); }
+.auction-badge.platinum { background: rgba(168,216,234,0.08); color: var(--platinum-c); border: 1px solid rgba(168,216,234,0.2); }
+.auction-info { flex: 1; min-width: 0; }
+.auction-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.auction-pos { font-size: 11px; color: var(--muted); }
+.auction-meta { text-align: right; }
+.auction-floor { font-family: var(--font-mono); font-size: 9px; color: var(--muted); }
+.auction-time { font-family: var(--font-mono); font-size: 10px; color: var(--red); }
+.bid-btn {
+ font-family: var(--font-mono);
+ font-size: 10px;
+ padding: 5px 10px;
+ border-radius: 5px;
+ border: 1px solid rgba(245,197,24,0.3);
+ background: rgba(245,197,24,0.07);
+ color: var(--gold);
+ cursor: pointer;
+ transition: all 0.15s;
+ white-space: nowrap;
+ flex-shrink: 0;
+}
+.bid-btn:hover { background: rgba(245,197,24,0.18); }
+/* LIVE FEED */
 .feed-item {
-display: flex;
-align-items: flex-start;
-gap: 12px;
-padding: 12px 16px;
-border-bottom: 1px solid var(–border);
-animation: fadeIn 0.4s ease;
-}
-@keyframes fadeIn {
-from { opacity: 0; transform: translateY(-6px); }
-to { opacity: 1; transform: translateY(0); }
+ display: flex;
+ gap: 10px;
+ padding: 11px 16px;
+ border-bottom: 1px solid var(--border);
+ animation: fadeSlide 0.4s ease;
 }
 .feed-item:last-child { border-bottom: none; }
+@keyframes fadeSlide {
+ from { opacity: 0; transform: translateY(-5px); }
+ to { opacity: 1; transform: translateY(0); }
+}
 .feed-icon {
-font-size: 18px;
-width: 32px;
-height: 32px;
-border-radius: 7px;
-background: var(–surface2);
-display: flex;
-align-items: center;
-justify-content: center;
-flex-shrink: 0;
+ width: 34px; height: 34px;
+ border-radius: 8px;
+ background: var(--surface2);
+ display: flex; align-items: center; justify-content: center;
+ font-size: 16px;
+ flex-shrink: 0;
 }
-.feed-text { flex: 1; }
-.feed-main { font-size: 13px; line-height: 1.4; }
-.feed-main strong { color: var(–text); }
-.feed-main .pts { color: var(–green); font-weight: 600; }
-.feed-time { font-family: ‘JetBrains Mono’, monospace; font-size: 10px; color: var(–muted); margin-top: 3px; }
-/* ── BOTTOM ROW ── */
-.bottom-row {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 20px;
-}
-/* ── REROLL ── */
+.feed-main { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.feed-main strong { color: var(--text); }
+.feed-pts { color: var(--green); font-weight: 600; }
+.feed-alert { color: var(--red); }
+.feed-time { font-family: var(--font-mono); font-size: 9px; color: var(--muted2); margin-top: 3px; }
+.live-indicator { display: flex; align-items: center; gap: 6px; }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: blink 1.4s infinite; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.live-text { font-family: var(--font-mono); font-size: 9px; color: var(--red); letter-spacing: 1px; }
+/* REROLL + INJURY */
+.reroll-body { padding: 16px; }
 .reroll-info {
-padding: 16px 20px;
-display: flex;
-align-items: center;
-gap: 12px;
+ display: flex;
+ align-items: center;
+ gap: 12px;
+ margin-bottom: 14px;
 }
 .reroll-icon {
-font-size: 24px;
-width: 44px;
-height: 44px;
-border-radius: 10px;
-background: rgba(59,139,245,0.1);
-border: 1px solid rgba(59,139,245,0.2);
-display: flex;
-align-items: center;
-justify-content: center;
+ width: 44px; height: 44px;
+ border-radius: 10px;
+ background: rgba(59,139,245,0.1);
+ border: 1px solid rgba(59,139,245,0.2);
+ display: flex; align-items: center; justify-content: center;
+ font-size: 20px;
+ flex-shrink: 0;
 }
 .reroll-text h4 { font-size: 14px; font-weight: 600; }
-.reroll-text p { font-size: 12px; color: var(–muted); margin-top: 2px; }
-.reroll-status {
-margin-left: auto;
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 11px;
-color: var(–green);
-background: rgba(39,201,106,0.1);
-border: 1px solid rgba(39,201,106,0.2);
-padding: 4px 10px;
-border-radius: 99px;
+.reroll-text p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.avail-tag { font-family: var(--font-mono); font-size: 10px; color: var(--green); background: rgba(39,201,106,0.1); border: 1px solid rgba(39,201,106,0.2); padding: 3px 9px; border-radius: 99px; margin-left: auto; }
+.reroll-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.reroll-btn {
+ padding: 9px;
+ border-radius: 7px;
+ border: none;
+ font-family: var(--font-display);
+ font-size: 12px;
+ letter-spacing: 1px;
+ cursor: pointer;
+ transition: all 0.15s;
+ text-align: center;
 }
-/* ── INJURY POOL ── */
-.injury-row {
-display: flex;
-align-items: center;
-gap: 10px;
-padding: 10px 16px;
-border-bottom: 1px solid var(–border);
+.reroll-btn.safe { background: rgba(59,139,245,0.15); color: var(--blue); border: 1px solid rgba(59,139,245,0.3); }
+.reroll-btn.safe:hover { background: rgba(59,139,245,0.25); }
+.reroll-btn.risky { background: rgba(232,67,59,0.1); color: var(--red); border: 1px solid rgba(232,67,59,0.25); }
+.reroll-btn.risky:hover { background: rgba(232,67,59,0.2); }
+.injury-item {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ padding: 10px 16px;
+ border-bottom: 1px solid var(--border);
 }
-.injury-row:last-child { border-bottom: none; }
-.injury-name { flex: 1; font-size: 13px; font-weight: 500; }
-.injury-pos { font-size: 11px; color: var(–muted); }
-.injury-cost {
-font-family: ‘JetBrains Mono’, monospace;
-font-size: 11px;
-color: var(–gold);
-}
+.injury-item:last-child { border-bottom: none; }
+.injury-name { font-size: 13px; font-weight: 500; flex: 1; }
+.injury-pos { font-size: 11px; color: var(--muted); }
+.injury-cost { font-family: var(--font-mono); font-size: 11px; color: var(--gold); }
 .add-btn {
-font-size: 10px;
-font-family: ‘JetBrains Mono’, monospace;
-padding: 4px 10px;
-border-radius: 5px;
-background: var(–surface2);
-border: 1px solid var(–border2);
-color: var(–muted);
-cursor: pointer;
-transition: all 0.15s;
+ font-family: var(--font-mono);
+ font-size: 10px;
+ padding: 4px 10px;
+ border-radius: 5px;
+ background: var(--surface2);
+ border: 1px solid var(--border2);
+ color: var(--muted);
+ cursor: pointer;
+ transition: all 0.15s;
 }
-.add-btn:hover { border-color: var(–gold); color: var(–gold); }
-/* scrollbar */
-::-webkit-scrollbar { width: 4px; }
+.add-btn:hover { border-color: var(--gold); color: var(--gold); }
+/* scrollbar global */
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 99px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+/* ── PITCHER SILHOUETTE ── */
+.sil-pitcher { viewBox: "0 0 90 110"; }
 </style>
 </head>
 <body>
-<!-- SIDEBAR -->
+<!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar">
 <div class="logo">
-<div class="logo-mark">DiamondUT</div>
+<div class="logo-diamond">⬦</div>
+<div class="logo-text">
+<div class="logo-name">DiamondUT</div>
 <div class="logo-sub">MLB · SEASON 2026</div>
 </div>
-<nav class="nav">
-<div class="nav-label">Main</div>
-<a class="nav-item active" href="#">
-<span class="nav-icon">⚡</span> Dashboard
-</a>
-<a class="nav-item" href="#">
-<span class="nav-icon">🃏</span> My Roster
-</a>
-<a class="nav-item" href="#">
-<span class="nav-icon">🏷️</span> Auction House
-<span class="nav-badge">12</span>
-</a>
-<a class="nav-item" href="#">
-<span class="nav-icon">👑</span> Legendary
-</a>
-```
-<div class="nav-label">League</div>
-<a class="nav-item" href="#">
-<span class="nav-icon">🏆</span> Standings
-</a>
-<a class="nav-item" href="#">
-<span class="nav-icon">🔄</span> Trade Center
-<span class="nav-badge">2</span>
-</a>
-<a class="nav-item" href="#">
-<span class="nav-icon">🏥</span> Injury Pool
-</a>
-<a class="nav-item" href="#">
-<span class="nav-icon">📦</span> Open Pack
-</a>
-<div class="nav-label">Account</div>
-<a class="nav-item" href="#">
-<span class="nav-icon">🎨</span> Cosmetics
-</a>
-<a class="nav-item" href="#">
-<span class="nav-icon">⚙️</span> Settings
-</a>
-```
-</nav>
-<div class="sidebar-coins">
-<div class="sidebar-coins-label">Coin Balance</div>
-<div class="sidebar-coins-val">342</div>
-<div class="sidebar-coins-sub">68 carry over next week</div>
-<div class="coin-bar-wrap">
-<div class="coin-bar"></div>
 </div>
+<nav class="nav">
+<div class="nav-section">Main</div>
+<a class="nav-item active" href="#"><span class="nav-icon">⚡</span> Dashboard</a>
+<a class="nav-item" href="#"><span class="nav-icon">🃏</span> My Roster</a>
+<a class="nav-item" href="#"><span class="nav-icon">🏷️</span> Auction House <span class="nav-badge">12</span></a>
+<a class="nav-item" href="#"><span class="nav-icon">👑</span> Legendary</a>
+<div class="nav-section">League</div>
+<a class="nav-item" href="#"><span class="nav-icon">🏆</span> Standings</a>
+<a class="nav-item" href="#"><span class="nav-icon">🔄</span> Trade Center <span class="nav-badge">2</span></a>
+<a class="nav-item" href="#"><span class="nav-icon">🏥</span> Injury Pool</a>
+<a class="nav-item" href="#"><span class="nav-icon">📦</span> Open Pack</a>
+<div class="nav-section">Account</div>
+<a class="nav-item" href="#"><span class="nav-icon">🎨</span> Cosmetics</a>
+<a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+</nav>
+<div class="coin-widget">
+<div class="coin-label">Coin Balance</div>
+<div class="coin-amount">342</div>
+<div class="coin-sub">~68 carry over next week</div>
+<div class="coin-track"><div class="coin-fill"></div></div>
 </div>
 </aside>
-<!-- MAIN -->
+<!-- ═══ MAIN ═══ -->
 <main class="main">
 <!-- TOPBAR -->
 <div class="topbar">
 <div class="topbar-title">Dashboard</div>
-<div class="week-badge">WEEK 7 OF 18</div>
+<div class="week-pill">WEEK 7 OF 18</div>
 <div class="sport-toggle">
-<button class="sport-btn active">MLB</button>
-<button class="sport-btn">NFL</button>
+<button class="sport-btn active" onclick="this.parentElement.querySelectorAll('.sport-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">MLB</button>
+<button class="sport-btn" onclick="this.parentElement.querySelectorAll('.sport-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">NFL</button>
 </div>
-<div class="avatar">MT</div>
+<div class="user-avatar">MT</div>
 </div>
-<!-- CONTENT -->
 <div class="content">
-```
 <!-- STAT CARDS -->
-<div class="stats-row">
-<div class="stat-card gold">
+<div class="stat-row">
+<div class="stat-card s-gold">
+<div class="stat-bg-icon">⚡</div>
 <div class="stat-label">Week Score</div>
-<div class="stat-val">284</div>
-<div class="stat-sub"><span>+38 pts</span> since yesterday</div>
+<div class="stat-value">284</div>
+<div class="stat-note"><span class="up">+38 pts</span> since yesterday</div>
 </div>
-<div class="stat-card green">
+<div class="stat-card s-green">
+<div class="stat-bg-icon">🏆</div>
 <div class="stat-label">League Rank</div>
-<div class="stat-val">#2</div>
-<div class="stat-sub"><span>↑ 1</span> from last week</div>
+<div class="stat-value">#2</div>
+<div class="stat-note"><span class="up">↑ 1 spot</span> this week</div>
 </div>
-<div class="stat-card blue">
+<div class="stat-card s-blue">
+<div class="stat-bg-icon">💎</div>
 <div class="stat-label">Team Cap Used</div>
-<div class="stat-val">435</div>
-<div class="stat-sub">65 remaining of 500</div>
+<div class="stat-value">435</div>
+<div class="stat-note">65 remaining of 500</div>
 </div>
-<div class="stat-card red">
-<div class="stat-label">Injuries</div>
-<div class="stat-val">1</div>
-<div class="stat-sub"><span class="down">J. Ramirez IL</span> — act now</div>
+<div class="stat-card s-red">
+<div class="stat-bg-icon">🏥</div>
+<div class="stat-label">Active Injuries</div>
+<div class="stat-value">1</div>
+<div class="stat-note"><span class="dn">J. Ramirez on IL</span></div>
 </div>
 </div>
-<!-- MAIN TWO COL -->
-<div class="two-col">
-<!-- ROSTER -->
+<!-- CAP BAR -->
+<div class="cap-bar-wrap">
+<div class="cap-bar-label">TEAM CAP</div>
+<div class="cap-bar-track"><div class="cap-bar-fill"></div></div>
+<div class="cap-bar-val">435 / 500</div>
+</div>
+<!-- PLAYER CARDS ROW -->
+<div class="cards-section">
+<div class="section-header">
+<div class="section-title">Active Roster — Batters</div>
+<a class="section-action" href="#">Edit Lineup →</a>
+</div>
+<div class="cards-scroll">
+<!-- LEGENDARY CARD -->
+<div class="player-card legendary">
+<div class="card-shine"></div>
+<div class="card-tier">LEGENDARY</div>
+<div class="card-coin">👑</div>
+<div class="card-art">
+<!-- Batter silhouette -->
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="14" r="11"/>
+<rect x="33" y="27" width="24" height="30" rx="4"/>
+<rect x="20" y="29" width="13" height="6" rx="3"/>
+<rect x="57" y="29" width="18" height="5" rx="2.5" transform="rotate(-20 57 29)"/>
+<rect x="33" y="57" width="11" height="28" rx="4"/>
+<rect x="46" y="57" width="11" height="28" rx="4"/>
+<rect x="30" y="83" width="13" height="8" rx="3"/>
+<rect x="47" y="83" width="13" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">S. Ohtani</div>
+<div class="card-pos-team"><span>DH · SP</span><span>LAD</span></div>
+<div class="card-pts">+62 pts</div>
+</div>
+</div>
+<!-- PLATINUM -->
+<div class="player-card platinum">
+<div class="card-shine"></div>
+<div class="card-tier">PLATINUM</div>
+<div class="card-coin">100</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="14" r="11"/>
+<rect x="33" y="27" width="24" height="30" rx="4"/>
+<rect x="20" y="29" width="13" height="6" rx="3"/>
+<rect x="57" y="29" width="18" height="5" rx="2.5" transform="rotate(-20 57 29)"/>
+<rect x="33" y="57" width="11" height="28" rx="4"/>
+<rect x="46" y="57" width="11" height="28" rx="4"/>
+<rect x="30" y="83" width="13" height="8" rx="3"/>
+<rect x="47" y="83" width="13" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">F. Freeman</div>
+<div class="card-pos-team"><span>1B</span><span>LAD</span></div>
+<div class="card-pts">+41 pts</div>
+</div>
+</div>
+<!-- PLATINUM -->
+<div class="player-card platinum">
+<div class="card-shine"></div>
+<div class="card-tier">PLATINUM</div>
+<div class="card-coin">100</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="14" r="11"/>
+<rect x="33" y="27" width="24" height="30" rx="4"/>
+<rect x="20" y="29" width="13" height="6" rx="3"/>
+<rect x="57" y="29" width="18" height="5" rx="2.5" transform="rotate(-20 57 29)"/>
+<rect x="33" y="57" width="11" height="28" rx="4"/>
+<rect x="46" y="57" width="11" height="28" rx="4"/>
+<rect x="30" y="83" width="13" height="8" rx="3"/>
+<rect x="47" y="83" width="13" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">M. Trout</div>
+<div class="card-pos-team"><span>CF</span><span>LAA</span></div>
+<div class="card-pts">+33 pts</div>
+</div>
+</div>
+<!-- GOLD -->
+<div class="player-card gold">
+<div class="card-shine"></div>
+<div class="card-tier">GOLD</div>
+<div class="card-coin">60</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="14" r="11"/>
+<rect x="33" y="27" width="24" height="30" rx="4"/>
+<rect x="20" y="29" width="13" height="6" rx="3"/>
+<rect x="57" y="29" width="18" height="5" rx="2.5" transform="rotate(-20 57 29)"/>
+<rect x="33" y="57" width="11" height="28" rx="4"/>
+<rect x="46" y="57" width="11" height="28" rx="4"/>
+<rect x="30" y="83" width="13" height="8" rx="3"/>
+<rect x="47" y="83" width="13" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">K. Tucker</div>
+<div class="card-pos-team"><span>OF</span><span>HOU</span></div>
+<div class="card-pts">+19 pts</div>
+</div>
+</div>
+<!-- GOLD -->
+<div class="player-card gold">
+<div class="card-shine"></div>
+<div class="card-tier">GOLD</div>
+<div class="card-coin">60</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="14" r="11"/>
+<rect x="33" y="27" width="24" height="30" rx="4"/>
+<rect x="20" y="29" width="13" height="6" rx="3"/>
+<rect x="57" y="29" width="18" height="5" rx="2.5" transform="rotate(-20 57 29)"/>
+<rect x="33" y="57" width="11" height="28" rx="4"/>
+<rect x="46" y="57" width="11" height="28" rx="4"/>
+<rect x="30" y="83" width="13" height="8" rx="3"/>
+<rect x="47" y="83" width="13" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">W. Contreras</div>
+<div class="card-pos-team"><span>C</span><span>STL</span></div>
+<div class="card-pts">+18 pts</div>
+</div>
+</div>
+<!-- SILVER - INJURED -->
+<div class="player-card silver">
+<div class="card-shine"></div>
+<div class="card-tier">SILVER</div>
+<div class="card-coin">25</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="14" r="11"/>
+<rect x="33" y="27" width="24" height="30" rx="4"/>
+<rect x="20" y="29" width="13" height="6" rx="3"/>
+<rect x="57" y="29" width="18" height="5" rx="2.5" transform="rotate(-20 57 29)"/>
+<rect x="33" y="57" width="11" height="28" rx="4"/>
+<rect x="46" y="57" width="11" height="28" rx="4"/>
+<rect x="30" y="83" width="13" height="8" rx="3"/>
+<rect x="47" y="83" width="13" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-injured-overlay"><span class="injured-badge">🏥 IL</span></div>
+<div class="card-info">
+<div class="card-name">J. Ramirez</div>
+<div class="card-pos-team"><span>3B</span><span>CLE</span></div>
+<div class="card-pts injured">INJURED</div>
+</div>
+</div>
+<!-- BRONZE -->
+<div class="player-card bronze">
+<div class="card-shine"></div>
+<div class="card-tier">BRONZE</div>
+<div class="card-coin">10</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="14" r="11"/>
+<rect x="33" y="27" width="24" height="30" rx="4"/>
+<rect x="20" y="29" width="13" height="6" rx="3"/>
+<rect x="57" y="29" width="18" height="5" rx="2.5" transform="rotate(-20 57 29)"/>
+<rect x="33" y="57" width="11" height="28" rx="4"/>
+<rect x="46" y="57" width="11" height="28" rx="4"/>
+<rect x="30" y="83" width="13" height="8" rx="3"/>
+<rect x="47" y="83" width="13" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">T. Hernandez</div>
+<div class="card-pos-team"><span>OF</span><span>TOR</span></div>
+<div class="card-pts zero">Bench</div>
+</div>
+</div>
+</div>
+</div>
+<!-- PITCHER CARDS ROW -->
+<div class="cards-section">
+<div class="section-header">
+<div class="section-title">Active Roster — Pitchers</div>
+</div>
+<div class="cards-scroll">
+<!-- LEGENDARY PITCHER -->
+<div class="player-card legendary">
+<div class="card-shine"></div>
+<div class="card-tier">LEGENDARY</div>
+<div class="card-coin">👑</div>
+<div class="card-art">
+<!-- Pitcher silhouette (wind-up pose) -->
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="13" r="11"/>
+<rect x="34" y="26" width="22" height="28" rx="4"/>
+<rect x="14" y="30" width="20" height="6" rx="3" transform="rotate(15 14 30)"/>
+<rect x="56" y="22" width="22" height="6" rx="3" transform="rotate(-35 56 22)"/>
+<rect x="34" y="54" width="10" height="30" rx="4" transform="rotate(5 34 54)"/>
+<rect x="46" y="54" width="10" height="30" rx="4" transform="rotate(-5 46 54)"/>
+<rect x="31" y="82" width="12" height="8" rx="3"/>
+<rect x="47" y="82" width="12" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">S. Ohtani</div>
+<div class="card-pos-team"><span>SP</span><span>LAD</span></div>
+<div class="card-pts">+62 pts</div>
+</div>
+</div>
+<!-- GOLD PITCHER -->
+<div class="player-card gold">
+<div class="card-shine"></div>
+<div class="card-tier">GOLD</div>
+<div class="card-coin">60</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="13" r="11"/>
+<rect x="34" y="26" width="22" height="28" rx="4"/>
+<rect x="14" y="30" width="20" height="6" rx="3" transform="rotate(15 14 30)"/>
+<rect x="56" y="22" width="22" height="6" rx="3" transform="rotate(-35 56 22)"/>
+<rect x="34" y="54" width="10" height="30" rx="4" transform="rotate(5 34 54)"/>
+<rect x="46" y="54" width="10" height="30" rx="4" transform="rotate(-5 46 54)"/>
+<rect x="31" y="82" width="12" height="8" rx="3"/>
+<rect x="47" y="82" width="12" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">C. Burnes</div>
+<div class="card-pos-team"><span>SP</span><span>BAL</span></div>
+<div class="card-pts">+28 pts</div>
+</div>
+</div>
+<!-- SILVER PITCHER -->
+<div class="player-card silver">
+<div class="card-shine"></div>
+<div class="card-tier">SILVER</div>
+<div class="card-coin">25</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="13" r="11"/>
+<rect x="34" y="26" width="22" height="28" rx="4"/>
+<rect x="14" y="30" width="20" height="6" rx="3" transform="rotate(15 14 30)"/>
+<rect x="56" y="22" width="22" height="6" rx="3" transform="rotate(-35 56 22)"/>
+<rect x="34" y="54" width="10" height="30" rx="4" transform="rotate(5 34 54)"/>
+<rect x="46" y="54" width="10" height="30" rx="4" transform="rotate(-5 46 54)"/>
+<rect x="31" y="82" width="12" height="8" rx="3"/>
+<rect x="47" y="82" width="12" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">E. Díaz</div>
+<div class="card-pos-team"><span>RP</span><span>NYM</span></div>
+<div class="card-pts">+14 pts</div>
+</div>
+</div>
+<!-- BRONZE PITCHER -->
+<div class="player-card bronze">
+<div class="card-shine"></div>
+<div class="card-tier">BRONZE</div>
+<div class="card-coin">10</div>
+<div class="card-art">
+<svg class="silhouette" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+<circle cx="45" cy="13" r="11"/>
+<rect x="34" y="26" width="22" height="28" rx="4"/>
+<rect x="14" y="30" width="20" height="6" rx="3" transform="rotate(15 14 30)"/>
+<rect x="56" y="22" width="22" height="6" rx="3" transform="rotate(-35 56 22)"/>
+<rect x="34" y="54" width="10" height="30" rx="4" transform="rotate(5 34 54)"/>
+<rect x="46" y="54" width="10" height="30" rx="4" transform="rotate(-5 46 54)"/>
+<rect x="31" y="82" width="12" height="8" rx="3"/>
+<rect x="47" y="82" width="12" height="8" rx="3"/>
+</svg>
+</div>
+<div class="card-divider"></div>
+<div class="card-info">
+<div class="card-name">J. Luzardo</div>
+<div class="card-pos-team"><span>SP</span><span>MIA</span></div>
+<div class="card-pts zero">No game</div>
+</div>
+</div>
+</div>
+</div>
+<!-- MAIN GRID: LEADERBOARD + LEGENDARY -->
+<div class="main-grid">
+<!-- LEADERBOARD -->
 <div class="panel">
 <div class="panel-head">
-<span class="panel-title">Active Lineup</span>
-<a class="panel-action" href="#">Edit Lineup →</a>
+<span class="panel-title">League Standings</span>
+<a class="panel-link" href="#">Full Table →</a>
 </div>
-<div class="roster-body">
-<div class="cap-bar-wrap">
-<div class="cap-bar-top">
-<span class="cap-bar-label">TEAM CAP</span>
-<span class="cap-bar-val">435 / 500</span>
+<div class="lb-row me">
+<div class="lb-rank gold-rank">2</div>
+<div class="lb-info">
+<div class="lb-name">Your Team ← you</div>
+<div class="lb-record">4-2 · W1 streak</div>
 </div>
-<div class="cap-bar-track">
-<div class="cap-bar-fill"></div>
+<div class="lb-pts">284</div>
+<div class="lb-delta up">+38</div>
 </div>
+<div class="lb-row">
+<div class="lb-rank gold-rank">1</div>
+<div class="lb-info">
+<div class="lb-name">Thunder Bats</div>
+<div class="lb-record">5-1 · W3 streak</div>
 </div>
-<div class="pos-label">Batting</div>
-<div class="player-row">
-<span class="player-pos">C</span>
-<span class="tier-dot gold"></span>
-<span class="player-name">W. Contreras</span>
-<span class="player-team">STL</span>
-<span class="player-pts">+18</span>
-<span class="player-coin">60</span>
+<div class="lb-pts">312</div>
+<div class="lb-delta up">+22</div>
 </div>
-<div class="player-row">
-<span class="player-pos">1B</span>
-<span class="tier-dot platinum"></span>
-<span class="player-name">F. Freeman</span>
-<span class="player-team">LAD</span>
-<span class="player-pts">+41</span>
-<span class="player-coin">100</span>
+<div class="lb-row">
+<div class="lb-rank">3</div>
+<div class="lb-info">
+<div class="lb-name">Diamond Dogs</div>
+<div class="lb-record">4-2 · L1</div>
 </div>
-<div class="player-row">
-<span class="player-pos">2B</span>
-<span class="tier-dot gold"></span>
-<span class="player-name">J. Wong</span>
-<span class="player-team">MIL</span>
-<span class="player-pts">+12</span>
-<span class="player-coin">60</span>
+<div class="lb-pts">271</div>
+<div class="lb-delta dn">-6</div>
 </div>
-<div class="player-row">
-<span class="player-pos">3B</span>
-<span class="tier-dot silver"></span>
-<span class="player-name">J. Ramirez</span>
-<span class="player-team">CLE</span>
-<span class="player-pts zero">—</span>
-<span class="injured-tag">IL</span>
+<div class="lb-row">
+<div class="lb-rank">4</div>
+<div class="lb-info">
+<div class="lb-name">RBI Kings</div>
+<div class="lb-record">3-3 · W2</div>
 </div>
-<div class="player-row">
-<span class="player-pos">SS</span>
-<span class="tier-dot platinum"></span>
-<span class="player-name">C. Correa</span>
-<span class="player-team">MIN</span>
-<span class="player-pts">+22</span>
-<span class="player-coin">100</span>
+<div class="lb-pts">248</div>
+<div class="lb-delta up">+11</div>
 </div>
-<div class="player-row">
-<span class="player-pos">OF</span>
-<span class="tier-dot platinum"></span>
-<span class="player-name">M. Trout</span>
-<span class="player-team">LAA</span>
-<span class="player-pts">+33</span>
-<span class="player-coin">100</span>
+<div class="lb-row">
+<div class="lb-rank">5</div>
+<div class="lb-info">
+<div class="lb-name">Ace Factory</div>
+<div class="lb-record">2-4 · L2</div>
 </div>
-<div class="player-row">
-<span class="player-pos">OF</span>
-<span class="tier-dot gold"></span>
-<span class="player-name">K. Tucker</span>
-<span class="player-team">HOU</span>
-<span class="player-pts">+19</span>
-<span class="player-coin">60</span>
+<div class="lb-pts">219</div>
+<div class="lb-delta dn">-14</div>
 </div>
-<div class="player-row">
-<span class="player-pos">OF</span>
-<span class="tier-dot silver"></span>
-<span class="player-name">L. Robert</span>
-<span class="player-team">CWS</span>
-<span class="player-pts">+8</span>
-<span class="player-coin">25</span>
+<div class="lb-row">
+<div class="lb-rank">6</div>
+<div class="lb-info">
+<div class="lb-name">Slugger Squad</div>
+<div class="lb-record">1-5 · L4</div>
 </div>
-<div class="player-row">
-<span class="player-pos">UTIL</span>
-<span class="tier-dot gold"></span>
-<span class="player-name">A. Rizzo</span>
-<span class="player-team">NYY</span>
-<span class="player-pts">+11</span>
-<span class="player-coin">60</span>
-</div>
-<div class="pos-label" style="margin-top:8px">Pitching</div>
-<div class="player-row">
-<span class="player-pos">SP</span>
-<span class="tier-dot legendary"></span>
-<span class="player-name">S. Ohtani</span>
-<span class="player-team">LAD</span>
-<span class="player-pts">+62</span>
-<span style="font-size:9px;color:var(--gold)">👑</span>
-</div>
-<div class="player-row">
-<span class="player-pos">SP</span>
-<span class="tier-dot gold"></span>
-<span class="player-name">C. Burnes</span>
-<span class="player-team">BAL</span>
-<span class="player-pts">+28</span>
-<span class="player-coin">60</span>
-</div>
-<div class="player-row">
-<span class="player-pos">RP</span>
-<span class="tier-dot silver"></span>
-<span class="player-name">E. Díaz</span>
-<span class="player-team">NYM</span>
-<span class="player-pts">+14</span>
-<span class="player-coin">25</span>
-</div>
-<div class="bench-divider">
-<span>BENCH</span>
-</div>
-<div class="player-row">
-<span class="player-pos">BN</span>
-<span class="tier-dot bronze"></span>
-<span class="player-name">T. Hernandez</span>
-<span class="player-team">TOR</span>
-<span class="player-pts zero">—</span>
-<span class="player-coin">10</span>
+<div class="lb-pts">188</div>
+<div class="lb-delta dn">-9</div>
 </div>
 </div>
-</div>
-<!-- RIGHT COLUMN -->
-<div style="display:flex;flex-direction:column;gap:20px;">
-<!-- LEGENDARY -->
-<div class="legendary-panel">
+<!-- LEGENDARY PANEL -->
+<div class="panel">
 <div class="panel-head">
 <span class="panel-title">👑 This Week's Legendary</span>
-<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red)">3D 14H LEFT</span>
+<span style="font-family:var(--font-mono);font-size:9px;color:var(--red)">3D 14H LEFT</span>
 </div>
-<div class="legendary-card">
-<div class="legendary-badge">Legendary Player</div>
-<div class="legendary-name">Shohei Ohtani</div>
-<div class="legendary-detail">DH / SP · Los Angeles Dodgers</div>
-<div class="legendary-boosts">
-<div class="boost-row">
-<span class="boost-desc">HR in game</span>
-<span class="boost-val">+50 pts</span>
+<div class="legendary-feature">
+<div class="leg-badge">⬦ Legendary Card Available</div>
+<div class="leg-card-visual">
+<div class="leg-timer">3D 14H LEFT</div>
+<div class="leg-player-art">
+<svg width="70" height="120" viewBox="0 0 90 130" xmlns="http://www.w3.org/2000/svg" style="fill:rgba(245,197,24,0.5);filter:drop-shadow(0 0 14px rgba(245,197,24,0.7))">
+<circle cx="45" cy="13" r="11"/>
+<rect x="34" y="26" width="22" height="28" rx="4"/>
+<rect x="14" y="30" width="20" height="6" rx="3" transform="rotate(15 14 30)"/>
+<rect x="56" y="22" width="22" height="6" rx="3" transform="rotate(-35 56 22)"/>
+<rect x="34" y="54" width="10" height="30" rx="4" transform="rotate(5 34 54)"/>
+<rect x="46" y="54" width="10" height="30" rx="4" transform="rotate(-5 46 54)"/>
+<rect x="31" y="82" width="12" height="8" rx="3"/>
+<rect x="47" y="82" width="12" height="8" rx="3"/>
+</svg>
 </div>
-<div class="boost-row">
-<span class="boost-desc">8+ Ks in start</span>
-<span class="boost-val">+40 pts</span>
-</div>
-<div class="boost-row">
-<span class="boost-desc">Multi-hit game</span>
-<span class="boost-val">+30 pts</span>
+<div class="leg-player-info">
+<div class="leg-crown">👑</div>
+<div class="leg-name">Shohei Ohtani</div>
+<div class="leg-detail">DH / SP · Los Angeles Dodgers</div>
 </div>
 </div>
+<div class="boost-list">
+<div class="boost-item"><span>Home Run in game</span><span class="boost-pts">+50 pts</span></div>
+<div class="boost-item"><span>8+ Strikeouts in start</span><span class="boost-pts">+40 pts</span></div>
+<div class="boost-item"><span>Multi-hit game</span><span class="boost-pts">+30 pts</span></div>
 </div>
-<div class="legendary-cost">
-<div class="legendary-cost-label">Trade-In Required</div>
-<div class="legendary-cost-desc">Must sacrifice cards totaling <strong>200+ coin value</strong> from your roster to claim this card.</div>
+<div class="cost-box">
+<strong>Trade-in Required:</strong> Sacrifice player cards totaling <strong>200+ coin value</strong> from your roster to claim.
 </div>
 <button class="btn btn-gold">Sacrifice Cards to Claim</button>
-<button class="btn btn-outline">View All Milestones</button>
+<button class="btn btn-ghost">View All Milestones</button>
 </div>
 </div>
 </div>
-<!-- LIVE FEED + AUCTION + LEADERBOARD -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+<!-- BOTTOM THREE COLS -->
+<div class="three-col">
 <!-- LIVE FEED -->
-<div class="live-feed">
+<div class="panel">
 <div class="panel-head">
 <span class="panel-title">Live Feed</span>
-<div style="display:flex;align-items:center;gap:6px;">
+<div class="live-indicator">
 <div class="live-dot"></div>
-<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red)">LIVE</span>
+<span class="live-text">LIVE</span>
 </div>
 </div>
 <div class="feed-item">
 <div class="feed-icon">💣</div>
-<div class="feed-text">
-<div class="feed-main"><strong>S. Ohtani</strong> hit a solo HR — <span class="pts">+50 pts legendary bonus</span></div>
+<div>
+<div class="feed-main"><strong>S. Ohtani</strong> hit a solo HR — <span class="feed-pts">+50 pts legendary bonus!</span></div>
 <div class="feed-time">2 min ago · LAD vs SF</div>
 </div>
 </div>
 <div class="feed-item">
 <div class="feed-icon">⚾</div>
-<div class="feed-text">
-<div class="feed-main"><strong>F. Freeman</strong> goes 2-for-3 with an RBI double — <span class="pts">+18 pts</span></div>
+<div>
+<div class="feed-main"><strong>F. Freeman</strong> 2-for-3, RBI double — <span class="feed-pts">+18 pts</span></div>
 <div class="feed-time">11 min ago · LAD vs SF</div>
 </div>
 </div>
 <div class="feed-item">
 <div class="feed-icon">🔥</div>
-<div class="feed-text">
-<div class="feed-main"><strong>C. Burnes</strong> K's 7 through 5 IP — <span class="pts">+21 pts</span></div>
+<div>
+<div class="feed-main"><strong>C. Burnes</strong> 7 Ks through 5 IP — <span class="feed-pts">+21 pts</span></div>
 <div class="feed-time">34 min ago · BAL vs BOS</div>
 </div>
 </div>
 <div class="feed-item">
 <div class="feed-icon">🏥</div>
-<div class="feed-text">
-<div class="feed-main"><strong>J. Ramirez</strong> placed on IL — <span style="color:var(--red)">check injury pool</span></div>
+<div>
+<div class="feed-main"><strong>J. Ramirez</strong> placed on IL — <span class="feed-alert">check injury pool</span></div>
 <div class="feed-time">1 hr ago</div>
 </div>
 </div>
 </div>
-<!-- AUCTION -->
+<!-- AUCTION HOUSE -->
 <div class="panel">
 <div class="panel-head">
 <span class="panel-title">Auction House</span>
-<a class="panel-action" href="#">View All →</a>
+<a class="panel-link" href="#">View All →</a>
 </div>
-<div class="auction-row">
-<div class="auction-tier platinum">PT</div>
+<div class="auction-item">
+<div class="auction-badge platinum">PT</div>
 <div class="auction-info">
 <div class="auction-name">R. Devers</div>
 <div class="auction-pos">3B · BOS</div>
 </div>
-<div>
+<div class="auction-meta">
 <div class="auction-floor">Floor: 60</div>
-<div class="auction-timer">2D 4H</div>
+<div class="auction-time">2D 4H</div>
 </div>
 <button class="bid-btn">Bid</button>
 </div>
-<div class="auction-row">
-<div class="auction-tier gold">GD</div>
+<div class="auction-item">
+<div class="auction-badge gold">GD</div>
 <div class="auction-info">
 <div class="auction-name">N. Arenado</div>
 <div class="auction-pos">3B · STL</div>
 </div>
-<div>
+<div class="auction-meta">
 <div class="auction-floor">Floor: 40</div>
-<div class="auction-timer">2D 4H</div>
+<div class="auction-time">2D 4H</div>
 </div>
 <button class="bid-btn">Bid</button>
 </div>
-<div class="auction-row">
-<div class="auction-tier silver">SV</div>
+<div class="auction-item">
+<div class="auction-badge silver">SV</div>
 <div class="auction-info">
 <div class="auction-name">M. Machado</div>
 <div class="auction-pos">3B · SD</div>
 </div>
-<div>
+<div class="auction-meta">
 <div class="auction-floor">Floor: 30</div>
-<div class="auction-timer">2D 4H</div>
+<div class="auction-time">2D 4H</div>
 </div>
 <button class="bid-btn">Bid</button>
 </div>
-<div class="auction-row">
-<div class="auction-tier gold">GD</div>
+<div class="auction-item">
+<div class="auction-badge gold">GD</div>
 <div class="auction-info">
 <div class="auction-name">P. Alonso</div>
 <div class="auction-pos">1B · NYM</div>
 </div>
-<div>
+<div class="auction-meta">
 <div class="auction-floor">Floor: 45</div>
-<div class="auction-timer">2D 4H</div>
+<div class="auction-time">2D 4H</div>
 </div>
 <button class="bid-btn">Bid</button>
 </div>
-<div class="auction-row">
-<div class="auction-tier silver">SV</div>
+<div class="auction-item">
+<div class="auction-badge silver">SV</div>
 <div class="auction-info">
 <div class="auction-name">L. Castillo</div>
 <div class="auction-pos">SP · SEA</div>
 </div>
-<div>
+<div class="auction-meta">
 <div class="auction-floor">Floor: 35</div>
-<div class="auction-timer">2D 4H</div>
+<div class="auction-time">2D 4H</div>
 </div>
 <button class="bid-btn">Bid</button>
 </div>
 </div>
-<!-- LEADERBOARD -->
+<!-- REROLL + INJURY -->
+<div style="display:flex;flex-direction:column;gap:20px;">
 <div class="panel">
-<div class="panel-head">
-<span class="panel-title">Standings</span>
-<a class="panel-action" href="#">Full Table →</a>
-</div>
-<div class="lb-row">
-<div class="lb-rank top">1</div>
-<div class="lb-team">
-<div class="lb-team-name">Thunder Bats</div>
-<div class="lb-team-record">5-1 · W3</div>
-</div>
-<div class="lb-pts">312</div>
-<div class="lb-change">+22</div>
-</div>
-<div class="lb-row me">
-<div class="lb-rank top">2</div>
-<div class="lb-team">
-<div class="lb-team-name">Your Team ← you</div>
-<div class="lb-team-record">4-2 · W1</div>
-</div>
-<div class="lb-pts">284</div>
-<div class="lb-change">+38</div>
-</div>
-<div class="lb-row">
-<div class="lb-rank">3</div>
-<div class="lb-team">
-<div class="lb-team-name">Diamond Dogs</div>
-<div class="lb-team-record">4-2 · L1</div>
-</div>
-<div class="lb-pts">271</div>
-<div class="lb-change down">-6</div>
-</div>
-<div class="lb-row">
-<div class="lb-rank">4</div>
-<div class="lb-team">
-<div class="lb-team-name">RBI Kings</div>
-<div class="lb-team-record">3-3 · W2</div>
-</div>
-<div class="lb-pts">248</div>
-<div class="lb-change">+11</div>
-</div>
-<div class="lb-row">
-<div class="lb-rank">5</div>
-<div class="lb-team">
-<div class="lb-team-name">Ace Factory</div>
-<div class="lb-team-record">2-4 · L2</div>
-</div>
-<div class="lb-pts">219</div>
-<div class="lb-change down">-14</div>
-</div>
-<div class="lb-row">
-<div class="lb-rank">6</div>
-<div class="lb-team">
-<div class="lb-team-name">Slugger Squad</div>
-<div class="lb-team-record">1-5 · L4</div>
-</div>
-<div class="lb-pts">188</div>
-<div class="lb-change down">-9</div>
-</div>
-</div>
-</div>
-<!-- BOTTOM ROW -->
-<div class="bottom-row">
-<!-- REROLL -->
-<div class="panel">
-<div class="panel-head">
-<span class="panel-title">Weekly Reroll</span>
-<a class="panel-action" href="#">Use Reroll →</a>
-</div>
+<div class="panel-head"><span class="panel-title">Weekly Reroll</span></div>
+<div class="reroll-body">
 <div class="reroll-info">
 <div class="reroll-icon">🔁</div>
 <div class="reroll-text">
 <h4>1 Reroll Available</h4>
-<p>Select up to 5 players to exchange for a new random pack</p>
+<p>Swap up to 5 players for a new pack</p>
 </div>
-<div class="reroll-status">AVAILABLE</div>
+<div class="avail-tag">READY</div>
 </div>
-<div style="padding: 0 16px 16px; display:flex; gap:10px;">
-<button class="btn btn-gold" style="flex:1;margin:0;">Safe Reroll (Same Tier)</button>
-<button class="btn btn-outline" style="flex:1;margin:0;">Risky Reroll (Any Tier)</button>
+<div class="reroll-btns">
+<button class="reroll-btn safe">Safe Reroll</button>
+<button class="reroll-btn risky">Risky Reroll</button>
 </div>
 </div>
-<!-- INJURY POOL -->
+</div>
 <div class="panel">
 <div class="panel-head">
 <span class="panel-title">🏥 Injury Pool</span>
-<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">30 coins each</span>
+<span style="font-family:var(--font-mono);font-size:10px;color:var(--muted)">30 coins each</span>
 </div>
-<div class="injury-row">
+<div class="injury-item">
 <div>
 <div class="injury-name">E. Suárez</div>
-<div class="injury-pos">3B · ARI</div>
+<div class="injury-pos">3B · ARI · Silver</div>
 </div>
-<span class="player-coin" style="margin-left:auto">Silver · 25</span>
 <div class="injury-cost">30 🪙</div>
 <button class="add-btn">Add</button>
 </div>
-<div class="injury-row">
+<div class="injury-item">
 <div>
 <div class="injury-name">B. Nimmo</div>
-<div class="injury-pos">OF · NYM</div>
+<div class="injury-pos">OF · NYM · Bronze</div>
 </div>
-<span class="player-coin" style="margin-left:auto">Bronze · 10</span>
 <div class="injury-cost">30 🪙</div>
 <button class="add-btn">Add</button>
 </div>
-<div class="injury-row">
+<div class="injury-item">
 <div>
 <div class="injury-name">M. Stroman</div>
-<div class="injury-pos">SP · CHC</div>
+<div class="injury-pos">SP · CHC · Silver</div>
 </div>
-<span class="player-coin" style="margin-left:auto">Silver · 25</span>
 <div class="injury-cost">30 🪙</div>
 <button class="add-btn">Add</button>
 </div>
 </div>
 </div>
-```
+</div>
 </div>
 </main>
-<script>
- // Sport toggle
- document.querySelectorAll('.sport-btn').forEach(btn => {
-   btn.addEventListener('click', () => {
-     document.querySelectorAll('.sport-btn').forEach(b => b.classList.remove('active'));
-     btn.classList.add('active');
-   });
- });
-</script>
 </body>
 </html>
