@@ -1,1 +1,1270 @@
-https://teams.microsoft.com/l/message/48:notes/1777783136927?context=%7B%22contextType%22%3A%22chat%22%2C%22oid%22%3A%228%3Aorgid%3Af3ae78b9-4bd3-46af-be34-20d7dfe86daa%22%7D
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiamondUT — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+ :root {
+   --gold: #F5C518;
+   --gold-glow: rgba(245,197,24,0.25);
+   --red: #E8433B;
+   --green: #27C96A;
+   --blue: #3B8BF5;
+   --platinum: #A8D8EA;
+   --bronze: #CD7F32;
+   --silver: #B8C4CC;
+   --bg: #080A0F;
+   --surface: #0F1218;
+   --surface2: #161B24;
+   --surface3: #1D2433;
+   --border: #1F2733;
+   --border2: #2A3444;
+   --text: #E8ECF4;
+   --muted: #5A6478;
+   --muted2: #3D4658;
+ }
+- { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+min-height: 100vh;
+display: flex;
+overflow-x: hidden;
+}
+/* ── SIDEBAR ── */
+.sidebar {
+width: 220px;
+min-height: 100vh;
+background: var(–surface);
+border-right: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+position: fixed;
+top: 0; left: 0;
+z-index: 100;
+padding: 0 0 24px;
+}
+.logo {
+padding: 24px 20px 20px;
+border-bottom: 1px solid var(–border);
+}
+.logo-mark {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 22px;
+letter-spacing: 2px;
+color: var(–gold);
+line-height: 1;
+}
+.logo-sub {
+font-size: 10px;
+color: var(–muted);
+font-family: ‘JetBrains Mono’, monospace;
+letter-spacing: 1px;
+margin-top: 3px;
+}
+.nav {
+padding: 16px 12px;
+flex: 1;
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+.nav-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–muted2);
+padding: 10px 8px 6px;
+text-transform: uppercase;
+}
+.nav-item {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 9px 10px;
+border-radius: 7px;
+font-size: 13px;
+font-weight: 500;
+color: var(–muted);
+cursor: pointer;
+transition: all 0.15s;
+text-decoration: none;
+}
+.nav-item:hover { background: var(–surface2); color: var(–text); }
+.nav-item.active {
+background: rgba(245,197,24,0.1);
+color: var(–gold);
+border: 1px solid rgba(245,197,24,0.2);
+}
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+.nav-badge {
+margin-left: auto;
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+background: var(–red);
+color: white;
+padding: 1px 6px;
+border-radius: 99px;
+}
+.sidebar-coins {
+margin: 0 12px;
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-radius: 10px;
+padding: 14px;
+}
+.sidebar-coins-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–muted);
+text-transform: uppercase;
+}
+.sidebar-coins-val {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+color: var(–gold);
+line-height: 1.2;
+margin-top: 2px;
+}
+.sidebar-coins-sub {
+font-size: 11px;
+color: var(–muted);
+margin-top: 2px;
+}
+.coin-bar-wrap {
+margin-top: 8px;
+height: 4px;
+background: var(–border2);
+border-radius: 99px;
+overflow: hidden;
+}
+.coin-bar {
+height: 100%;
+width: 68%;
+background: linear-gradient(90deg, var(–gold), #FFE066);
+border-radius: 99px;
+}
+/* ── MAIN ── */
+.main {
+margin-left: 220px;
+flex: 1;
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+}
+/* ── TOPBAR ── */
+.topbar {
+height: 60px;
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+display: flex;
+align-items: center;
+padding: 0 28px;
+gap: 16px;
+position: sticky;
+top: 0;
+z-index: 50;
+}
+.topbar-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px;
+letter-spacing: 2px;
+color: var(–text);
+flex: 1;
+}
+.week-badge {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+color: var(–muted);
+background: var(–surface2);
+border: 1px solid var(–border2);
+padding: 4px 12px;
+border-radius: 99px;
+}
+.sport-toggle {
+display: flex;
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-radius: 7px;
+overflow: hidden;
+}
+.sport-btn {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+padding: 6px 14px;
+cursor: pointer;
+color: var(–muted);
+transition: all 0.15s;
+border: none;
+background: none;
+}
+.sport-btn.active {
+background: var(–gold);
+color: var(–bg);
+font-weight: 700;
+}
+.avatar {
+width: 32px;
+height: 32px;
+border-radius: 50%;
+background: linear-gradient(135deg, var(–gold), var(–red));
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 14px;
+color: var(–bg);
+}
+/* ── CONTENT ── */
+.content {
+padding: 24px 28px;
+display: grid;
+gap: 20px;
+}
+/* ── STAT CARDS ROW ── */
+.stats-row {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 14px;
+}
+.stat-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 16px 18px;
+position: relative;
+overflow: hidden;
+}
+.stat-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+}
+.stat-card.gold::before { background: var(–gold); }
+.stat-card.green::before { background: var(–green); }
+.stat-card.red::before { background: var(–red); }
+.stat-card.blue::before { background: var(–blue); }
+.stat-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–muted);
+text-transform: uppercase;
+}
+.stat-val {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 36px;
+line-height: 1.1;
+margin-top: 4px;
+}
+.stat-card.gold .stat-val { color: var(–gold); }
+.stat-card.green .stat-val { color: var(–green); }
+.stat-card.red .stat-val { color: var(–red); }
+.stat-card.blue .stat-val { color: var(–blue); }
+.stat-sub {
+font-size: 11px;
+color: var(–muted);
+margin-top: 2px;
+}
+.stat-sub span { color: var(–green); }
+.stat-sub span.down { color: var(–red); }
+/* ── TWO COL ── */
+.two-col {
+display: grid;
+grid-template-columns: 1fr 340px;
+gap: 20px;
+}
+/* ── PANEL ── */
+.panel {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+overflow: hidden;
+}
+.panel-head {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 20px;
+border-bottom: 1px solid var(–border);
+}
+.panel-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 16px;
+letter-spacing: 2px;
+color: var(–text);
+}
+.panel-action {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+color: var(–gold);
+cursor: pointer;
+text-decoration: none;
+border: 1px solid rgba(245,197,24,0.3);
+padding: 4px 10px;
+border-radius: 4px;
+transition: all 0.15s;
+}
+.panel-action:hover { background: rgba(245,197,24,0.1); }
+/* ── ROSTER ── */
+.roster-body { padding: 12px; }
+.position-group { margin-bottom: 8px; }
+.pos-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–muted2);
+padding: 4px 8px;
+text-transform: uppercase;
+}
+.player-row {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 10px;
+border-radius: 7px;
+cursor: pointer;
+transition: background 0.1s;
+}
+.player-row:hover { background: var(–surface2); }
+.player-pos {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+color: var(–muted);
+width: 28px;
+text-align: center;
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-radius: 4px;
+padding: 2px 0;
+}
+.tier-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+flex-shrink: 0;
+}
+.tier-dot.bronze { background: var(–bronze); }
+.tier-dot.silver { background: var(–silver); }
+.tier-dot.gold { background: var(–gold); }
+.tier-dot.platinum { background: var(–platinum); }
+.tier-dot.legendary { background: linear-gradient(135deg, var(–gold), var(–red)); }
+.player-name {
+flex: 1;
+font-size: 13px;
+font-weight: 500;
+}
+.player-team {
+font-size: 11px;
+color: var(–muted);
+}
+.player-pts {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 12px;
+color: var(–green);
+font-weight: 600;
+}
+.player-pts.zero { color: var(–muted); }
+.player-coin {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+color: var(–muted);
+background: var(–surface2);
+padding: 2px 6px;
+border-radius: 4px;
+}
+.injured-tag {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+color: var(–red);
+background: rgba(232,67,59,0.1);
+border: 1px solid rgba(232,67,59,0.2);
+padding: 1px 5px;
+border-radius: 3px;
+}
+.bench-divider {
+display: flex;
+align-items: center;
+gap: 8px;
+margin: 8px 10px;
+}
+.bench-divider span {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+color: var(–muted2);
+letter-spacing: 1px;
+white-space: nowrap;
+}
+.bench-divider::before,
+.bench-divider::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(–border);
+}
+.cap-bar-wrap {
+margin: 0 20px 16px;
+padding: 12px;
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-radius: 8px;
+}
+.cap-bar-top {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 6px;
+}
+.cap-bar-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+color: var(–muted);
+letter-spacing: 1px;
+}
+.cap-bar-val {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 12px;
+color: var(–gold);
+font-weight: 700;
+}
+.cap-bar-track {
+height: 5px;
+background: var(–border2);
+border-radius: 99px;
+overflow: hidden;
+}
+.cap-bar-fill {
+height: 100%;
+width: 87%;
+background: linear-gradient(90deg, var(–green), var(–gold));
+border-radius: 99px;
+}
+/* ── LEGENDARY ── */
+.legendary-panel {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+overflow: hidden;
+}
+.legendary-card {
+margin: 16px;
+border-radius: 10px;
+background: linear-gradient(145deg, #1a1200, #0d0800);
+border: 1px solid rgba(245,197,24,0.4);
+padding: 20px;
+position: relative;
+overflow: hidden;
+}
+.legendary-card::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: radial-gradient(ellipse at 50% 0%, rgba(245,197,24,0.12), transparent 70%);
+}
+.legendary-badge {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 3px;
+color: var(–gold);
+text-transform: uppercase;
+margin-bottom: 10px;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.legendary-badge::before {
+content: ‘👑’;
+font-size: 12px;
+}
+.legendary-name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+color: var(–gold);
+line-height: 1;
+text-shadow: 0 0 20px rgba(245,197,24,0.4);
+}
+.legendary-detail {
+font-size: 12px;
+color: var(–muted);
+margin-top: 4px;
+}
+.legendary-boosts {
+margin-top: 14px;
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+.boost-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: rgba(245,197,24,0.07);
+border: 1px solid rgba(245,197,24,0.15);
+border-radius: 6px;
+padding: 7px 10px;
+}
+.boost-desc { font-size: 12px; color: var(–text); }
+.boost-val {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 12px;
+color: var(–gold);
+font-weight: 700;
+}
+.legendary-cost {
+margin: 0 16px 16px;
+padding: 12px;
+background: rgba(232,67,59,0.07);
+border: 1px solid rgba(232,67,59,0.2);
+border-radius: 8px;
+}
+.legendary-cost-label {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 9px;
+letter-spacing: 2px;
+color: var(–red);
+text-transform: uppercase;
+margin-bottom: 6px;
+}
+.legendary-cost-desc {
+font-size: 12px;
+color: var(–muted);
+line-height: 1.5;
+}
+.legendary-cost-desc strong { color: var(–text); }
+.btn {
+display: block;
+margin: 0 16px 16px;
+padding: 11px;
+border-radius: 8px;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 15px;
+letter-spacing: 2px;
+text-align: center;
+cursor: pointer;
+border: none;
+transition: all 0.15s;
+}
+.btn-gold {
+background: var(–gold);
+color: var(–bg);
+}
+.btn-gold:hover {
+background: #FFE066;
+transform: translateY(-1px);
+box-shadow: 0 4px 20px var(–gold-glow);
+}
+.btn-outline {
+background: transparent;
+border: 1px solid var(–border2);
+color: var(–muted);
+}
+.btn-outline:hover { border-color: var(–gold); color: var(–gold); }
+/* ── AUCTION ── */
+.auction-row {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+transition: background 0.1s;
+cursor: pointer;
+}
+.auction-row:last-child { border-bottom: none; }
+.auction-row:hover { background: var(–surface2); }
+.auction-tier {
+width: 36px;
+height: 36px;
+border-radius: 7px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 12px;
+flex-shrink: 0;
+}
+.auction-tier.gold { background: rgba(245,197,24,0.15); color: var(–gold); border: 1px solid rgba(245,197,24,0.3); }
+.auction-tier.silver { background: rgba(184,196,204,0.1); color: var(–silver); border: 1px solid rgba(184,196,204,0.2); }
+.auction-tier.platinum { background: rgba(168,216,234,0.1); color: var(–platinum); border: 1px solid rgba(168,216,234,0.2); }
+.auction-info { flex: 1; }
+.auction-name { font-size: 13px; font-weight: 600; }
+.auction-pos { font-size: 11px; color: var(–muted); margin-top: 1px; }
+.auction-floor {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+color: var(–muted);
+}
+.auction-timer {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+color: var(–red);
+text-align: right;
+}
+.auction-timer-label { font-size: 9px; color: var(–muted); }
+.bid-btn {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+padding: 5px 10px;
+border-radius: 5px;
+border: 1px solid rgba(245,197,24,0.3);
+background: rgba(245,197,24,0.08);
+color: var(–gold);
+cursor: pointer;
+transition: all 0.15s;
+white-space: nowrap;
+}
+.bid-btn:hover { background: rgba(245,197,24,0.18); }
+/* ── LEADERBOARD ── */
+.lb-row {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+transition: background 0.1s;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-row.me { background: rgba(245,197,24,0.05); border-left: 2px solid var(–gold); }
+.lb-rank {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px;
+color: var(–muted2);
+width: 24px;
+text-align: center;
+}
+.lb-rank.top { color: var(–gold); }
+.lb-team { flex: 1; }
+.lb-team-name { font-size: 13px; font-weight: 600; }
+.lb-team-record { font-size: 11px; color: var(–muted); margin-top: 1px; }
+.lb-pts {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 14px;
+color: var(–green);
+font-weight: 700;
+}
+.lb-change {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px;
+color: var(–green);
+width: 36px;
+text-align: right;
+}
+.lb-change.down { color: var(–red); }
+/* ── LIVE FEED ── */
+.live-feed {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+overflow: hidden;
+}
+.live-dot {
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: var(–red);
+animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.5; transform: scale(0.8); }
+}
+.feed-item {
+display: flex;
+align-items: flex-start;
+gap: 12px;
+padding: 12px 16px;
+border-bottom: 1px solid var(–border);
+animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(-6px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.feed-item:last-child { border-bottom: none; }
+.feed-icon {
+font-size: 18px;
+width: 32px;
+height: 32px;
+border-radius: 7px;
+background: var(–surface2);
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+}
+.feed-text { flex: 1; }
+.feed-main { font-size: 13px; line-height: 1.4; }
+.feed-main strong { color: var(–text); }
+.feed-main .pts { color: var(–green); font-weight: 600; }
+.feed-time { font-family: ‘JetBrains Mono’, monospace; font-size: 10px; color: var(–muted); margin-top: 3px; }
+/* ── BOTTOM ROW ── */
+.bottom-row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
+}
+/* ── REROLL ── */
+.reroll-info {
+padding: 16px 20px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.reroll-icon {
+font-size: 24px;
+width: 44px;
+height: 44px;
+border-radius: 10px;
+background: rgba(59,139,245,0.1);
+border: 1px solid rgba(59,139,245,0.2);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.reroll-text h4 { font-size: 14px; font-weight: 600; }
+.reroll-text p { font-size: 12px; color: var(–muted); margin-top: 2px; }
+.reroll-status {
+margin-left: auto;
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+color: var(–green);
+background: rgba(39,201,106,0.1);
+border: 1px solid rgba(39,201,106,0.2);
+padding: 4px 10px;
+border-radius: 99px;
+}
+/* ── INJURY POOL ── */
+.injury-row {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+}
+.injury-row:last-child { border-bottom: none; }
+.injury-name { flex: 1; font-size: 13px; font-weight: 500; }
+.injury-pos { font-size: 11px; color: var(–muted); }
+.injury-cost {
+font-family: ‘JetBrains Mono’, monospace;
+font-size: 11px;
+color: var(–gold);
+}
+.add-btn {
+font-size: 10px;
+font-family: ‘JetBrains Mono’, monospace;
+padding: 4px 10px;
+border-radius: 5px;
+background: var(–surface2);
+border: 1px solid var(–border2);
+color: var(–muted);
+cursor: pointer;
+transition: all 0.15s;
+}
+.add-btn:hover { border-color: var(–gold); color: var(–gold); }
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border2); border-radius: 99px; }
+</style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="logo">
+<div class="logo-mark">DiamondUT</div>
+<div class="logo-sub">MLB · SEASON 2026</div>
+</div>
+<nav class="nav">
+<div class="nav-label">Main</div>
+<a class="nav-item active" href="#">
+<span class="nav-icon">⚡</span> Dashboard
+</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">🃏</span> My Roster
+</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">🏷️</span> Auction House
+<span class="nav-badge">12</span>
+</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">👑</span> Legendary
+</a>
+```
+<div class="nav-label">League</div>
+<a class="nav-item" href="#">
+<span class="nav-icon">🏆</span> Standings
+</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">🔄</span> Trade Center
+<span class="nav-badge">2</span>
+</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">🏥</span> Injury Pool
+</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">📦</span> Open Pack
+</a>
+<div class="nav-label">Account</div>
+<a class="nav-item" href="#">
+<span class="nav-icon">🎨</span> Cosmetics
+</a>
+<a class="nav-item" href="#">
+<span class="nav-icon">⚙️</span> Settings
+</a>
+```
+</nav>
+<div class="sidebar-coins">
+<div class="sidebar-coins-label">Coin Balance</div>
+<div class="sidebar-coins-val">342</div>
+<div class="sidebar-coins-sub">68 carry over next week</div>
+<div class="coin-bar-wrap">
+<div class="coin-bar"></div>
+</div>
+</div>
+</aside>
+<!-- MAIN -->
+<main class="main">
+<!-- TOPBAR -->
+<div class="topbar">
+<div class="topbar-title">Dashboard</div>
+<div class="week-badge">WEEK 7 OF 18</div>
+<div class="sport-toggle">
+<button class="sport-btn active">MLB</button>
+<button class="sport-btn">NFL</button>
+</div>
+<div class="avatar">MT</div>
+</div>
+<!-- CONTENT -->
+<div class="content">
+```
+<!-- STAT CARDS -->
+<div class="stats-row">
+<div class="stat-card gold">
+<div class="stat-label">Week Score</div>
+<div class="stat-val">284</div>
+<div class="stat-sub"><span>+38 pts</span> since yesterday</div>
+</div>
+<div class="stat-card green">
+<div class="stat-label">League Rank</div>
+<div class="stat-val">#2</div>
+<div class="stat-sub"><span>↑ 1</span> from last week</div>
+</div>
+<div class="stat-card blue">
+<div class="stat-label">Team Cap Used</div>
+<div class="stat-val">435</div>
+<div class="stat-sub">65 remaining of 500</div>
+</div>
+<div class="stat-card red">
+<div class="stat-label">Injuries</div>
+<div class="stat-val">1</div>
+<div class="stat-sub"><span class="down">J. Ramirez IL</span> — act now</div>
+</div>
+</div>
+<!-- MAIN TWO COL -->
+<div class="two-col">
+<!-- ROSTER -->
+<div class="panel">
+<div class="panel-head">
+<span class="panel-title">Active Lineup</span>
+<a class="panel-action" href="#">Edit Lineup →</a>
+</div>
+<div class="roster-body">
+<div class="cap-bar-wrap">
+<div class="cap-bar-top">
+<span class="cap-bar-label">TEAM CAP</span>
+<span class="cap-bar-val">435 / 500</span>
+</div>
+<div class="cap-bar-track">
+<div class="cap-bar-fill"></div>
+</div>
+</div>
+<div class="pos-label">Batting</div>
+<div class="player-row">
+<span class="player-pos">C</span>
+<span class="tier-dot gold"></span>
+<span class="player-name">W. Contreras</span>
+<span class="player-team">STL</span>
+<span class="player-pts">+18</span>
+<span class="player-coin">60</span>
+</div>
+<div class="player-row">
+<span class="player-pos">1B</span>
+<span class="tier-dot platinum"></span>
+<span class="player-name">F. Freeman</span>
+<span class="player-team">LAD</span>
+<span class="player-pts">+41</span>
+<span class="player-coin">100</span>
+</div>
+<div class="player-row">
+<span class="player-pos">2B</span>
+<span class="tier-dot gold"></span>
+<span class="player-name">J. Wong</span>
+<span class="player-team">MIL</span>
+<span class="player-pts">+12</span>
+<span class="player-coin">60</span>
+</div>
+<div class="player-row">
+<span class="player-pos">3B</span>
+<span class="tier-dot silver"></span>
+<span class="player-name">J. Ramirez</span>
+<span class="player-team">CLE</span>
+<span class="player-pts zero">—</span>
+<span class="injured-tag">IL</span>
+</div>
+<div class="player-row">
+<span class="player-pos">SS</span>
+<span class="tier-dot platinum"></span>
+<span class="player-name">C. Correa</span>
+<span class="player-team">MIN</span>
+<span class="player-pts">+22</span>
+<span class="player-coin">100</span>
+</div>
+<div class="player-row">
+<span class="player-pos">OF</span>
+<span class="tier-dot platinum"></span>
+<span class="player-name">M. Trout</span>
+<span class="player-team">LAA</span>
+<span class="player-pts">+33</span>
+<span class="player-coin">100</span>
+</div>
+<div class="player-row">
+<span class="player-pos">OF</span>
+<span class="tier-dot gold"></span>
+<span class="player-name">K. Tucker</span>
+<span class="player-team">HOU</span>
+<span class="player-pts">+19</span>
+<span class="player-coin">60</span>
+</div>
+<div class="player-row">
+<span class="player-pos">OF</span>
+<span class="tier-dot silver"></span>
+<span class="player-name">L. Robert</span>
+<span class="player-team">CWS</span>
+<span class="player-pts">+8</span>
+<span class="player-coin">25</span>
+</div>
+<div class="player-row">
+<span class="player-pos">UTIL</span>
+<span class="tier-dot gold"></span>
+<span class="player-name">A. Rizzo</span>
+<span class="player-team">NYY</span>
+<span class="player-pts">+11</span>
+<span class="player-coin">60</span>
+</div>
+<div class="pos-label" style="margin-top:8px">Pitching</div>
+<div class="player-row">
+<span class="player-pos">SP</span>
+<span class="tier-dot legendary"></span>
+<span class="player-name">S. Ohtani</span>
+<span class="player-team">LAD</span>
+<span class="player-pts">+62</span>
+<span style="font-size:9px;color:var(--gold)">👑</span>
+</div>
+<div class="player-row">
+<span class="player-pos">SP</span>
+<span class="tier-dot gold"></span>
+<span class="player-name">C. Burnes</span>
+<span class="player-team">BAL</span>
+<span class="player-pts">+28</span>
+<span class="player-coin">60</span>
+</div>
+<div class="player-row">
+<span class="player-pos">RP</span>
+<span class="tier-dot silver"></span>
+<span class="player-name">E. Díaz</span>
+<span class="player-team">NYM</span>
+<span class="player-pts">+14</span>
+<span class="player-coin">25</span>
+</div>
+<div class="bench-divider">
+<span>BENCH</span>
+</div>
+<div class="player-row">
+<span class="player-pos">BN</span>
+<span class="tier-dot bronze"></span>
+<span class="player-name">T. Hernandez</span>
+<span class="player-team">TOR</span>
+<span class="player-pts zero">—</span>
+<span class="player-coin">10</span>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN -->
+<div style="display:flex;flex-direction:column;gap:20px;">
+<!-- LEGENDARY -->
+<div class="legendary-panel">
+<div class="panel-head">
+<span class="panel-title">👑 This Week's Legendary</span>
+<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red)">3D 14H LEFT</span>
+</div>
+<div class="legendary-card">
+<div class="legendary-badge">Legendary Player</div>
+<div class="legendary-name">Shohei Ohtani</div>
+<div class="legendary-detail">DH / SP · Los Angeles Dodgers</div>
+<div class="legendary-boosts">
+<div class="boost-row">
+<span class="boost-desc">HR in game</span>
+<span class="boost-val">+50 pts</span>
+</div>
+<div class="boost-row">
+<span class="boost-desc">8+ Ks in start</span>
+<span class="boost-val">+40 pts</span>
+</div>
+<div class="boost-row">
+<span class="boost-desc">Multi-hit game</span>
+<span class="boost-val">+30 pts</span>
+</div>
+</div>
+</div>
+<div class="legendary-cost">
+<div class="legendary-cost-label">Trade-In Required</div>
+<div class="legendary-cost-desc">Must sacrifice cards totaling <strong>200+ coin value</strong> from your roster to claim this card.</div>
+</div>
+<button class="btn btn-gold">Sacrifice Cards to Claim</button>
+<button class="btn btn-outline">View All Milestones</button>
+</div>
+</div>
+</div>
+<!-- LIVE FEED + AUCTION + LEADERBOARD -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+<!-- LIVE FEED -->
+<div class="live-feed">
+<div class="panel-head">
+<span class="panel-title">Live Feed</span>
+<div style="display:flex;align-items:center;gap:6px;">
+<div class="live-dot"></div>
+<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red)">LIVE</span>
+</div>
+</div>
+<div class="feed-item">
+<div class="feed-icon">💣</div>
+<div class="feed-text">
+<div class="feed-main"><strong>S. Ohtani</strong> hit a solo HR — <span class="pts">+50 pts legendary bonus</span></div>
+<div class="feed-time">2 min ago · LAD vs SF</div>
+</div>
+</div>
+<div class="feed-item">
+<div class="feed-icon">⚾</div>
+<div class="feed-text">
+<div class="feed-main"><strong>F. Freeman</strong> goes 2-for-3 with an RBI double — <span class="pts">+18 pts</span></div>
+<div class="feed-time">11 min ago · LAD vs SF</div>
+</div>
+</div>
+<div class="feed-item">
+<div class="feed-icon">🔥</div>
+<div class="feed-text">
+<div class="feed-main"><strong>C. Burnes</strong> K's 7 through 5 IP — <span class="pts">+21 pts</span></div>
+<div class="feed-time">34 min ago · BAL vs BOS</div>
+</div>
+</div>
+<div class="feed-item">
+<div class="feed-icon">🏥</div>
+<div class="feed-text">
+<div class="feed-main"><strong>J. Ramirez</strong> placed on IL — <span style="color:var(--red)">check injury pool</span></div>
+<div class="feed-time">1 hr ago</div>
+</div>
+</div>
+</div>
+<!-- AUCTION -->
+<div class="panel">
+<div class="panel-head">
+<span class="panel-title">Auction House</span>
+<a class="panel-action" href="#">View All →</a>
+</div>
+<div class="auction-row">
+<div class="auction-tier platinum">PT</div>
+<div class="auction-info">
+<div class="auction-name">R. Devers</div>
+<div class="auction-pos">3B · BOS</div>
+</div>
+<div>
+<div class="auction-floor">Floor: 60</div>
+<div class="auction-timer">2D 4H</div>
+</div>
+<button class="bid-btn">Bid</button>
+</div>
+<div class="auction-row">
+<div class="auction-tier gold">GD</div>
+<div class="auction-info">
+<div class="auction-name">N. Arenado</div>
+<div class="auction-pos">3B · STL</div>
+</div>
+<div>
+<div class="auction-floor">Floor: 40</div>
+<div class="auction-timer">2D 4H</div>
+</div>
+<button class="bid-btn">Bid</button>
+</div>
+<div class="auction-row">
+<div class="auction-tier silver">SV</div>
+<div class="auction-info">
+<div class="auction-name">M. Machado</div>
+<div class="auction-pos">3B · SD</div>
+</div>
+<div>
+<div class="auction-floor">Floor: 30</div>
+<div class="auction-timer">2D 4H</div>
+</div>
+<button class="bid-btn">Bid</button>
+</div>
+<div class="auction-row">
+<div class="auction-tier gold">GD</div>
+<div class="auction-info">
+<div class="auction-name">P. Alonso</div>
+<div class="auction-pos">1B · NYM</div>
+</div>
+<div>
+<div class="auction-floor">Floor: 45</div>
+<div class="auction-timer">2D 4H</div>
+</div>
+<button class="bid-btn">Bid</button>
+</div>
+<div class="auction-row">
+<div class="auction-tier silver">SV</div>
+<div class="auction-info">
+<div class="auction-name">L. Castillo</div>
+<div class="auction-pos">SP · SEA</div>
+</div>
+<div>
+<div class="auction-floor">Floor: 35</div>
+<div class="auction-timer">2D 4H</div>
+</div>
+<button class="bid-btn">Bid</button>
+</div>
+</div>
+<!-- LEADERBOARD -->
+<div class="panel">
+<div class="panel-head">
+<span class="panel-title">Standings</span>
+<a class="panel-action" href="#">Full Table →</a>
+</div>
+<div class="lb-row">
+<div class="lb-rank top">1</div>
+<div class="lb-team">
+<div class="lb-team-name">Thunder Bats</div>
+<div class="lb-team-record">5-1 · W3</div>
+</div>
+<div class="lb-pts">312</div>
+<div class="lb-change">+22</div>
+</div>
+<div class="lb-row me">
+<div class="lb-rank top">2</div>
+<div class="lb-team">
+<div class="lb-team-name">Your Team ← you</div>
+<div class="lb-team-record">4-2 · W1</div>
+</div>
+<div class="lb-pts">284</div>
+<div class="lb-change">+38</div>
+</div>
+<div class="lb-row">
+<div class="lb-rank">3</div>
+<div class="lb-team">
+<div class="lb-team-name">Diamond Dogs</div>
+<div class="lb-team-record">4-2 · L1</div>
+</div>
+<div class="lb-pts">271</div>
+<div class="lb-change down">-6</div>
+</div>
+<div class="lb-row">
+<div class="lb-rank">4</div>
+<div class="lb-team">
+<div class="lb-team-name">RBI Kings</div>
+<div class="lb-team-record">3-3 · W2</div>
+</div>
+<div class="lb-pts">248</div>
+<div class="lb-change">+11</div>
+</div>
+<div class="lb-row">
+<div class="lb-rank">5</div>
+<div class="lb-team">
+<div class="lb-team-name">Ace Factory</div>
+<div class="lb-team-record">2-4 · L2</div>
+</div>
+<div class="lb-pts">219</div>
+<div class="lb-change down">-14</div>
+</div>
+<div class="lb-row">
+<div class="lb-rank">6</div>
+<div class="lb-team">
+<div class="lb-team-name">Slugger Squad</div>
+<div class="lb-team-record">1-5 · L4</div>
+</div>
+<div class="lb-pts">188</div>
+<div class="lb-change down">-9</div>
+</div>
+</div>
+</div>
+<!-- BOTTOM ROW -->
+<div class="bottom-row">
+<!-- REROLL -->
+<div class="panel">
+<div class="panel-head">
+<span class="panel-title">Weekly Reroll</span>
+<a class="panel-action" href="#">Use Reroll →</a>
+</div>
+<div class="reroll-info">
+<div class="reroll-icon">🔁</div>
+<div class="reroll-text">
+<h4>1 Reroll Available</h4>
+<p>Select up to 5 players to exchange for a new random pack</p>
+</div>
+<div class="reroll-status">AVAILABLE</div>
+</div>
+<div style="padding: 0 16px 16px; display:flex; gap:10px;">
+<button class="btn btn-gold" style="flex:1;margin:0;">Safe Reroll (Same Tier)</button>
+<button class="btn btn-outline" style="flex:1;margin:0;">Risky Reroll (Any Tier)</button>
+</div>
+</div>
+<!-- INJURY POOL -->
+<div class="panel">
+<div class="panel-head">
+<span class="panel-title">🏥 Injury Pool</span>
+<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)">30 coins each</span>
+</div>
+<div class="injury-row">
+<div>
+<div class="injury-name">E. Suárez</div>
+<div class="injury-pos">3B · ARI</div>
+</div>
+<span class="player-coin" style="margin-left:auto">Silver · 25</span>
+<div class="injury-cost">30 🪙</div>
+<button class="add-btn">Add</button>
+</div>
+<div class="injury-row">
+<div>
+<div class="injury-name">B. Nimmo</div>
+<div class="injury-pos">OF · NYM</div>
+</div>
+<span class="player-coin" style="margin-left:auto">Bronze · 10</span>
+<div class="injury-cost">30 🪙</div>
+<button class="add-btn">Add</button>
+</div>
+<div class="injury-row">
+<div>
+<div class="injury-name">M. Stroman</div>
+<div class="injury-pos">SP · CHC</div>
+</div>
+<span class="player-coin" style="margin-left:auto">Silver · 25</span>
+<div class="injury-cost">30 🪙</div>
+<button class="add-btn">Add</button>
+</div>
+</div>
+</div>
+```
+</div>
+</main>
+<script>
+ // Sport toggle
+ document.querySelectorAll('.sport-btn').forEach(btn => {
+   btn.addEventListener('click', () => {
+     document.querySelectorAll('.sport-btn').forEach(b => b.classList.remove('active'));
+     btn.classList.add('active');
+   });
+ });
+</script>
+</body>
+</html>
