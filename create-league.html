@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiamondUT — Create League</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
+:root {
+  --font-display: 'Bebas Neue', 'Arial Black', sans-serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --gold: #F5C518; --gold2: #FFE066; --gold-glow: rgba(245,197,24,0.3);
+  --red: #E8433B; --green: #27C96A; --blue: #3B8BF5;
+  --bg: #060810; --surface: #0F1218; --surface2: #151B25;
+  --border: #1E2535; --border2: #283044;
+  --text: #E8ECF4; --muted: #5A6A82; --muted2: #3A4558;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-body); min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(245,197,24,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(59,139,245,0.05) 0%, transparent 50%);
+}
+
+.setup-card {
+  width: 100%; max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+
+/* HEADER */
+.setup-header {
+  padding: 30px 36px 24px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(245,197,24,0.06), transparent);
+  position: relative; overflow: hidden;
+}
+.setup-header::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-conic-gradient(rgba(255,255,255,0.02) 0deg 10deg, transparent 10deg 20deg);
+}
+.logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; position: relative; z-index: 1; }
+.logo-diamond {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--gold), #FF8C00);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow: 0 0 20px rgba(245,197,24,0.4);
+}
+.logo-name { font-family: var(--font-display); font-size: 26px; letter-spacing: 3px; color: var(--gold); }
+.setup-title { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; color: var(--text); position: relative; z-index: 1; }
+.setup-sub { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 4px; position: relative; z-index: 1; }
+
+/* STEPS */
+.steps {
+  display: flex; border-bottom: 1px solid var(--border);
+}
+.step {
+  flex: 1; padding: 12px; text-align: center;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 1px; color: var(--muted2);
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.step:last-child { border-right: none; }
+.step.active { color: var(--gold); background: rgba(245,197,24,0.04); }
+.step.done { color: var(--green); }
+.step-num {
+  display: block; font-size: 16px;
+  font-family: var(--font-display); margin-bottom: 2px;
+}
+
+/* BODY */
+.setup-body { padding: 28px 36px 36px; }
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* FORM */
+.form-group { margin-bottom: 18px; }
+.form-label {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 2px; color: var(--muted);
+  text-transform: uppercase; display: block; margin-bottom: 7px;
+}
+.form-input {
+  width: 100%; padding: 11px 14px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; color: var(--text);
+  font-family: var(--font-body); font-size: 14px;
+  transition: border-color 0.15s; outline: none;
+}
+.form-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,197,24,0.1); }
+.form-hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+
+.mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.mode-card {
+  padding: 16px; border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.mode-card:hover { border-color: var(--gold); }
+.mode-card.selected { border-color: var(--gold); background: rgba(245,197,24,0.06); }
+.mode-icon { font-size: 28px; margin-bottom: 8px; }
+.mode-name { font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; color: var(--gold); margin-bottom: 4px; }
+.mode-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+.scoring-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+.scoring-opt {
+  padding: 12px 8px; border-radius: 8px; text-align: center;
+  border: 1px solid var(--border2); background: var(--surface2);
+  cursor: pointer; transition: all 0.15s;
+}
+.scoring-opt:hover { border-color: var(--blue); }
+.scoring-opt.selected { border-color: var(--blue); background: rgba(59,139,245,0.08); }
+.scoring-opt-name { font-family: var(--font-display); font-size: 13px; letter-spacing: 1px; color: var(--blue); }
+.scoring-opt-desc { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+/* ROSTER PREVIEW */
+.roster-preview {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 16px; margin-bottom: 18px;
+}
+.roster-preview h4 {
+  font-family: var(--font-display); font-size: 14px;
+  letter-spacing: 2px; color: var(--text); margin-bottom: 12px;
+}
+.tier-row {
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.tier-row:last-child { border-bottom: none; }
+.tier-name { display: flex; align-items: center; gap: 8px; }
+.tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tier-dot.legendary { background: #FFD166; }
+.tier-dot.platinum  { background: #c4b5fd; }
+.tier-dot.gold      { background: #ffe066; }
+.tier-dot.silver    { background: #c0d8f0; }
+.tier-dot.bronze    { background: #f0a070; }
+.tier-count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.tier-val { font-family: var(--font-mono); font-size: 12px; }
+.tier-val.legendary { color: #FFD166; }
+.tier-val.platinum  { color: #c4b5fd; }
+.tier-val.gold      { color: #ffe066; }
+.tier-val.silver    { color: #c0d8f0; }
+.tier-val.bronze    { color: #f0a070; }
+.cap-total {
+  display: flex; justify-content: space-between;
+  padding-top: 10px; margin-top: 4px;
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--gold); font-weight: 700;
+}
+
+/* PROGRESS */
+.progress-wrap { margin-bottom: 18px; }
+.progress-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.progress-track { height: 6px; background: var(--border2); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); border-radius: 99px; transition: width 0.4s ease; width: 0%; }
+
+/* ALERT */
+.alert { padding: 11px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 18px; display: none; line-height: 1.5; }
+.alert.error   { background: rgba(232,67,59,0.1);  border: 1px solid rgba(232,67,59,0.3);  color: #ff8a84; display: block; }
+.alert.success { background: rgba(39,201,106,0.1); border: 1px solid rgba(39,201,106,0.3); color: #27C96A; display: block; }
+.alert.info    { background: rgba(59,139,245,0.1); border: 1px solid rgba(59,139,245,0.3); color: #7eb8ff; display: block; }
+
+/* BTN */
+.btn-row { display: flex; gap: 10px; }
+.btn {
+  flex: 1; padding: 13px; border-radius: 8px; border: none;
+  font-family: var(--font-display); font-size: 16px; letter-spacing: 2px;
+  cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.btn-gold { background: var(--gold); color: var(--bg); }
+.btn-gold:hover { background: var(--gold2); transform: translateY(-1px); box-shadow: 0 6px 20px var(--gold-glow); }
+.btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--bg); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* SUCCESS STATE */
+.success-state { text-align: center; padding: 20px 0; }
+.success-icon { font-size: 60px; margin-bottom: 16px; }
+.success-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
+.success-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.team-card {
+  background: var(--surface2); border: 1px solid rgba(245,197,24,0.3);
+  border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: left;
+}
+.team-card-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-bottom: 4px; }
+.team-card-val { font-family: var(--font-display); font-size: 20px; color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="setup-card">
+  <div class="setup-header">
+    <div class="logo-wrap">
+      <div class="logo-diamond"></div>
+      <div class="logo-name">DiamondUT</div>
+    </div>
+    <div class="setup-title">Create Your League</div>
+    <div class="setup-sub">SET UP · ROSTER · PLAY</div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step active" id="stepTab1"><span class="step-num">1</span>League</div>
+    <div class="step" id="stepTab2"><span class="step-num">2</span>Mode</div>
+    <div class="step" id="stepTab3"><span class="step-num">3</span>Roster</div>
+  </div>
+
+  <div class="setup-body">
+
+    <!-- STEP 1 — LEAGUE INFO -->
+    <div class="step-panel active" id="step1">
+      <div class="alert" id="step1Alert"></div>
+
+      <div class="form-group">
+        <label class="form-label">League Name</label>
+        <input class="form-input" type="text" id="leagueName" placeholder="e.g. Friday Night Ballers" />
+        <div class="form-hint">This is what all teams in your league will see</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your Team Name</label>
+        <input class="form-input" type="text" id="teamName" placeholder="e.g. Thunder Bats" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Max Teams</label>
+        <select class="form-input" id="maxTeams">
+          <option value="6">6 Teams</option>
+          <option value="8">8 Teams</option>
+          <option value="10" selected>10 Teams</option>
+          <option value="12">12 Teams</option>
+        </select>
+        <div class="form-hint">You can invite others after creating the league</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-gold" onclick="goStep2()">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 — MODE + SCORING -->
+    <div class="step-panel" id="step2">
+      <div class="alert" id="step2Alert"></div>
+
+      <div class="form-group">
+        <label class="form-label">Game Mode</label>
+        <div class="mode-cards">
+          <div class="mode-card selected" id="modeDaily" onclick="selectMode('daily')">
+            <div class="mode-icon">⚡</div>
+            <div class="mode-name">Daily</div>
+            <div class="mode-desc">Score points each day. New pack every morning.</div>
+          </div>
+          <div class="mode-card" id="modeWeekly" onclick="selectMode('weekly')">
+            <div class="mode-icon">📅</div>
+            <div class="mode-name">Weekly</div>
+            <div class="mode-desc">Score points each week. New pack every Monday.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">NFL Scoring Format</label>
+        <div class="scoring-options">
+          <div class="scoring-opt" id="scoreStandard" onclick="selectScoring('standard')">
+            <div class="scoring-opt-name">Standard</div>
+            <div class="scoring-opt-desc">No reception points</div>
+          </div>
+          <div class="scoring-opt selected" id="scoreHalf" onclick="selectScoring('half_ppr')">
+            <div class="scoring-opt-name">Half PPR</div>
+            <div class="scoring-opt-desc">0.5 pts per catch</div>
+          </div>
+          <div class="scoring-opt" id="scoreFull" onclick="selectScoring('full_ppr')">
+            <div class="scoring-opt-name">Full PPR</div>
+            <div class="scoring-opt-desc">1 pt per catch</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+        <button class="btn btn-gold" onclick="goStep3()">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — ROSTER PREVIEW + CREATE -->
+    <div class="step-panel" id="step3">
+      <div class="alert" id="step3Alert"></div>
+
+      <div class="roster-preview">
+        <h4>Starting Pack Structure</h4>
+        <div class="tier-row">
+          <div class="tier-name"><div class="tier-dot legendary"></div>Legendary</div>
+          <div class="tier-count">0 players</div>
+          <div class="tier-val legendary">200 pts each</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-name"><div class="tier-dot platinum"></div>Platinum</div>
+          <div class="tier-count">1 player</div>
+          <div class="tier-val platinum">100 pts each</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-name"><div class="tier-dot gold"></div>Gold</div>
+          <div class="tier-count">3 players</div>
+          <div class="tier-val gold">60 pts each</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-name"><div class="tier-dot silver"></div>Silver</div>
+          <div class="tier-count">6 players</div>
+          <div class="tier-val silver">25 pts each</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-name"><div class="tier-dot bronze"></div>Bronze</div>
+          <div class="tier-count">8 players</div>
+          <div class="tier-val bronze">10 pts each</div>
+        </div>
+        <div class="cap-total">
+          <span>Total Cap Value</span>
+          <span>500 / 500</span>
+        </div>
+      </div>
+
+      <div class="progress-wrap" id="progressWrap" style="display:none">
+        <div class="progress-label">
+          <span>Building Your Roster</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+        <button class="btn btn-gold" id="createBtn" onclick="createLeague()">Create League + Get Pack</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="step-panel" id="stepSuccess">
+      <div class="success-state">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">League Created!</div>
+        <div class="success-sub">Your roster has been built. You're ready to play!</div>
+        <div class="team-card">
+          <div class="team-card-label">YOUR TEAM</div>
+          <div class="team-card-val" id="successTeamName">—</div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-label">LEAGUE</div>
+          <div class="team-card-val" id="successLeagueName">—</div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-label">STARTING COINS</div>
+          <div class="team-card-val">500 🪙</div>
+        </div>
+        <button class="btn btn-gold" style="width:100%;margin-top:8px;" onclick="window.location.href='dashboard.html'">
+          Go to Dashboard →
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { supabase } from './supabase.js'
+
+let selectedMode = 'daily'
+let selectedScoring = 'half_ppr'
+
+// ═══ STEP NAVIGATION ═══
+window.goStep = (n) => {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.toggle('active', i === n - 1)
+    s.classList.toggle('done', i < n - 1)
+  })
+  document.getElementById(`step${n}`).classList.add('active')
+}
+
+window.goStep2 = () => {
+  const leagueName = document.getElementById('leagueName').value.trim()
+  const teamName = document.getElementById('teamName').value.trim()
+  if (!leagueName || !teamName) {
+    showAlert('step1Alert', 'Please fill in all fields.', 'error')
+    return
+  }
+  clearAlert('step1Alert')
+  goStep(2)
+}
+
+window.goStep3 = () => {
+  goStep(3)
+}
+
+// ═══ MODE + SCORING SELECTION ═══
+window.selectMode = (mode) => {
+  selectedMode = mode
+  document.getElementById('modeDaily').classList.toggle('selected', mode === 'daily')
+  document.getElementById('modeWeekly').classList.toggle('selected', mode === 'weekly')
+}
+
+window.selectScoring = (scoring) => {
+  selectedScoring = scoring
+  document.querySelectorAll('.scoring-opt').forEach(o => o.classList.remove('selected'))
+  const map = { standard: 'scoreStandard', half_ppr: 'scoreHalf', full_ppr: 'scoreFull' }
+  document.getElementById(map[scoring]).classList.add('selected')
+}
+
+// ═══ ALERTS ═══
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id)
+  el.textContent = msg
+  el.className = `alert ${type}`
+}
+function clearAlert(id) {
+  const el = document.getElementById(id)
+  el.className = 'alert'
+}
+
+// ═══ PROGRESS ═══
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%'
+  document.getElementById('progressPct').textContent = pct + '%'
+}
+
+// ═══ CREATE LEAGUE + ASSIGN ROSTER ═══
+window.createLeague = async () => {
+  const leagueName = document.getElementById('leagueName').value.trim()
+  const teamName   = document.getElementById('teamName').value.trim()
+  const maxTeams   = parseInt(document.getElementById('maxTeams').value)
+  const btn        = document.getElementById('createBtn')
+
+  btn.disabled = true
+  btn.innerHTML = '<span class="spinner"></span> Creating...'
+  document.getElementById('progressWrap').style.display = 'block'
+  setProgress(10)
+
+  try {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not logged in. Please log in first.')
+
+    setProgress(20)
+
+    // 1. Create league
+    const { data: league, error: leagueErr } = await supabase
+      .from('leagues')
+      .insert({
+        name: leagueName,
+        mode: selectedMode,
+        nfl_scoring: selectedScoring,
+        max_teams: maxTeams,
+        week_number: 1,
+        season: 2026
+      })
+      .select()
+      .single()
+
+    if (leagueErr) throw leagueErr
+    setProgress(30)
+
+    // 2. Create team
+    const { data: team, error: teamErr } = await supabase
+      .from('teams')
+      .insert({
+        league_id: league.id,
+        user_id: user.id,
+        team_name: teamName,
+        coins: 500
+      })
+      .select()
+      .single()
+
+    if (teamErr) throw teamErr
+    setProgress(40)
+
+    // 3. Pick balanced roster from players table
+    // Structure: 1 Platinum, 3 Gold, 6 Silver, 8 Bronze
+    // Mix of MLB batters + pitchers
+    const rosterSlots = [
+      { tier: 'platinum', count: 1 },
+      { tier: 'gold',     count: 3 },
+      { tier: 'silver',   count: 6 },
+      { tier: 'bronze',   count: 8 }
+    ]
+
+    const assignedPlayerIds = []
+    const rosterRows = []
+
+    for (const slot of rosterSlots) {
+      // Get available players for this tier (not already assigned)
+      const { data: available, error: availErr } = await supabase
+        .from('players')
+        .select('id, position, sport')
+        .eq('tier', slot.tier)
+        .eq('sport', 'MLB')
+        .eq('is_injured', false)
+        .not('id', 'in', `(${assignedPlayerIds.length > 0 ? assignedPlayerIds.join(',') : '00000000-0000-0000-0000-000000000000'})`)
+        .order('projected_points', { ascending: false })
+        .limit(slot.count * 5) // get extras to allow position mixing
+
+      if (availErr) throw availErr
+
+      // Shuffle and pick required count
+      const shuffled = available.sort(() => Math.random() - 0.5)
+      const picked = shuffled.slice(0, slot.count)
+
+      picked.forEach(p => {
+        assignedPlayerIds.push(`'${p.id}'`)
+        rosterRows.push({
+          team_id: team.id,
+          player_id: p.id,
+          league_id: league.id,
+          slot: p.position,
+          is_active: true
+        })
+      })
+    }
+
+    setProgress(70)
+
+    // 4. Insert roster
+    const { error: rosterErr } = await supabase
+      .from('rosters')
+      .insert(rosterRows)
+
+    if (rosterErr) throw rosterErr
+    setProgress(85)
+
+    // 5. Log transaction
+    await supabase.from('transactions').insert(
+      rosterRows.map(r => ({
+        league_id: league.id,
+        team_id: team.id,
+        type: 'pickup',
+        player_id: r.player_id,
+        coins_spent: 0,
+        week_number: 1
+      }))
+    )
+
+    setProgress(100)
+
+    // Store league ID for dashboard use
+    localStorage.setItem('leagueId', league.id)
+    localStorage.setItem('teamId', team.id)
+
+    // Show success
+    document.getElementById('successTeamName').textContent = teamName
+    document.getElementById('successLeagueName').textContent = leagueName
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'))
+    document.getElementById('stepSuccess').classList.add('active')
+
+  } catch (err) {
+    showAlert('step3Alert', '❌ ' + err.message, 'error')
+    btn.disabled = false
+    btn.textContent = 'Create League + Get Pack'
+    document.getElementById('progressWrap').style.display = 'none'
+  }
+}
+
+// Auto redirect if not logged in
+const { data: { user } } = await supabase.auth.getUser()
+if (!user) window.location.href = 'login.html'
+</script>
+</body>
+</html>
