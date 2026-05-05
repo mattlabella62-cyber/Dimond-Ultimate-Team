@@ -54,8 +54,10 @@ const NFL_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K']
 // FETCH ALL PLAYERS FROM SLEEPER
 // ═══════════════════════════════════
 async function fetchSleeperPlayers(sport) {
-  const res = await fetch(`https://api.sleeper.app/v1/players/${sport}`)
-  if (!res.ok) throw new Error(`Failed to fetch ${sport} players`)
+  // Sleeper has separate endpoints for each sport
+  // sport should be 'nfl' or 'mlb'
+  const res = await fetch(`https://api.sleeper.app/v1/players/${sport.toLowerCase()}`)
+  if (!res.ok) throw new Error(`Failed to fetch ${sport} players: ${res.status}`)
   return res.json()
 }
  
@@ -152,11 +154,10 @@ function flagUpside(player, ceilingProjected, floorProjected) {
 // ═══════════════════════════════════
 async function processMLB(season, week) {
   console.log('Fetching MLB players from Sleeper...')
-  const allPlayers = await fetchSleeperPlayers('nfl') // Sleeper uses 'nfl' endpoint structure
+  const allPlayers = await fetchSleeperPlayers('mlb')
  
   // Filter to active MLB players only
   const mlbPlayers = Object.values(allPlayers).filter(p =>
-    p.sport === 'mlb' &&
     p.active &&
     p.position &&
     MLB_POSITIONS.includes(p.position)
@@ -165,7 +166,7 @@ async function processMLB(season, week) {
   console.log(`Found ${mlbPlayers.length} active MLB players`)
  
   // Fetch this week's projections
-  const projections = await fetchProjections('nfl', season, week)
+  const projections = await fetchProjections('mlb', season, week)
  
   // Group by position and sort by projected points
   const byPosition = {}
@@ -342,4 +343,3 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
- 
