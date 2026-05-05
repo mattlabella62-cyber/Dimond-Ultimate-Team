@@ -284,13 +284,21 @@ async function processNFL(season, week) {
 async function saveToSupabase(players) {
   console.log(`Saving ${players.length} players to Supabase...`)
  
-  // Batch in groups of 500 to avoid request size limits
-  const batchSize = 500
-  for (let i = 0; i < players.length; i += batchSize) {
-    const batch = players.slice(i, i + batchSize)
+  // Deduplicate by sleeper_id — keep last occurrence
+  const seen = new Map()
+  for (const p of players) {
+    seen.set(p.sleeper_id, p)
+  }
+  const deduped = Array.from(seen.values())
+  console.log(`After dedup: ${deduped.length} unique players`)
+ 
+  // Batch in groups of 250 to avoid request size limits
+  const batchSize = 250
+  for (let i = 0; i < deduped.length; i += batchSize) {
+    const batch = deduped.slice(i, i + batchSize)
     const { error } = await supabase
       .from('players')
-      .upsert(batch, { onConflict: 'sleeper_id' })
+      .upsert(batch, { onConflict: 'sleeper_id', ignoreDuplicates: false })
  
     if (error) {
       console.error(`Batch ${i} error:`, error)
