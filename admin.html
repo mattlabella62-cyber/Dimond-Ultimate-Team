@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DiamondUT — Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+  --gold: #F5C518; --green: #27C96A; --red: #E8433B; --blue: #3B8BF5;
+  --bg: #060810; --surface: #0F1218; --surface2: #151B25;
+  --border: #1E2535; --text: #E8ECF4; --muted: #5A6A82;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); padding: 40px; }
+h1 { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
+.subtitle { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-bottom: 32px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; max-width: 600px; }
+.card h2 { font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; }
+
+.form-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 16px; }
+.form-group { flex: 1; }
+label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; }
+input, select {
+  width: 100%; padding: 10px 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--text);
+  font-family: var(--font-mono); font-size: 13px; outline: none;
+}
+input:focus, select:focus { border-color: var(--gold); }
+
+.btn {
+  font-family: var(--font-display); font-size: 15px; letter-spacing: 2px;
+  padding: 11px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s;
+}
+.btn-gold { background: var(--gold); color: var(--bg); }
+.btn-gold:hover { background: #FFE066; transform: translateY(-1px); }
+.btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.log {
+  background: #000; border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px; font-family: var(--font-mono); font-size: 12px;
+  line-height: 1.8; min-height: 120px; max-height: 300px; overflow-y: auto;
+  margin-top: 16px; display: none;
+}
+.log.active { display: block; }
+.log .success { color: var(--green); }
+.log .error { color: var(--red); }
+.log .info { color: var(--blue); }
+.log .gold { color: var(--gold); }
+
+.status-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.stat-pill {
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 5px 12px; border-radius: 99px;
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.stat-pill.green { color: var(--green); border-color: rgba(39,201,106,0.3); background: rgba(39,201,106,0.08); }
+.stat-pill.gold  { color: var(--gold);  border-color: rgba(245,197,24,0.3);  background: rgba(245,197,24,0.08); }
+.stat-pill.blue  { color: var(--blue);  border-color: rgba(59,139,245,0.3);  background: rgba(59,139,245,0.08); }
+</style>
+</head>
+<body>
+
+<h1>⚡ DiamondUT Admin</h1>
+<div class="subtitle">PLAYER SYNC · LEAGUE MANAGEMENT · TOOLS</div>
+
+<div class="card">
+  <h2>🔄 Sync Players from Sleeper API</h2>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Week Number</label>
+      <input type="number" id="weekNum" value="1" min="1" max="18" />
+    </div>
+    <div class="form-group">
+      <label>Pipeline Secret</label>
+      <input type="password" id="secret" placeholder="Enter your pipeline secret" />
+    </div>
+  </div>
+
+  <button class="btn btn-gold" id="syncBtn" onclick="runSync()">Run Player Sync</button>
+
+  <div class="log" id="syncLog"></div>
+  <div class="status-row" id="statusRow"></div>
+</div>
+
+<script>
+async function runSync() {
+  const week = document.getElementById('weekNum').value
+  const secret = document.getElementById('secret').value
+  const log = document.getElementById('syncLog')
+  const btn = document.getElementById('syncBtn')
+  const statusRow = document.getElementById('statusRow')
+
+  if (!secret) {
+    alert('Please enter the pipeline secret')
+    return
+  }
+
+  btn.disabled = true
+  btn.textContent = 'Syncing...'
+  log.className = 'log active'
+  log.innerHTML = '<span class="info">Starting player sync...</span>\n'
+  statusRow.innerHTML = ''
+
+  try {
+    log.innerHTML += `<span class="info">Calling /api/sync-players?week=${week}</span>\n`
+
+    const res = await fetch(`/api/sync-players?week=${week}`, {
+      headers: { 'Authorization': `Bearer ${secret}` }
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      log.innerHTML += `<span class="error">❌ Error: ${data.error}</span>\n`
+    } else {
+      log.innerHTML += `<span class="success">✅ Sync complete!</span>\n`
+      log.innerHTML += `<span class="gold">MLB players: ${data.mlb_count}</span>\n`
+      log.innerHTML += `<span class="gold">NFL players: ${data.nfl_count}</span>\n`
+      log.innerHTML += `<span class="gold">Total saved: ${data.total}</span>\n`
+      log.innerHTML += `<span class="info">Season: ${data.season} · Week: ${data.week}</span>\n`
+
+      statusRow.innerHTML = `
+        <div class="stat-pill green">✅ Success</div>
+        <div class="stat-pill gold">MLB: ${data.mlb_count}</div>
+        <div class="stat-pill gold">NFL: ${data.nfl_count}</div>
+        <div class="stat-pill blue">Total: ${data.total}</div>
+      `
+    }
+  } catch(err) {
+    log.innerHTML += `<span class="error">❌ Failed: ${err.message}</span>\n`
+  }
+
+  btn.disabled = false
+  btn.textContent = 'Run Player Sync'
+}
+</script>
+</body>
+</html>
