@@ -11,7 +11,7 @@
 // 5. Save to Supabase players table
 // ═══════════════════════════════════
  
-import { createClient } from '@supabase/supabase-js'
+const { createClient } = require('@supabase/supabase-js')
  
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -304,7 +304,7 @@ async function saveToSupabase(players) {
 // Called by Vercel on schedule
 // or manually via GET request
 // ═══════════════════════════════════
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Protect endpoint with a secret key
   const authHeader = req.headers.authorization
   if (authHeader !== `Bearer ${process.env.PIPELINE_SECRET}`) {
@@ -342,3 +342,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+ 
