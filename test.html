@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DiamondUT — Connection Test</title>
+<style>
+  body { background: #060810; color: #E8ECF4; font-family: monospace; padding: 40px; }
+  h1 { color: #F5C518; margin-bottom: 24px; }
+  .result {
+    padding: 16px 20px; border-radius: 8px; margin-bottom: 12px;
+    font-size: 14px; line-height: 1.6;
+  }
+  .success { background: rgba(39,201,106,0.1); border: 1px solid rgba(39,201,106,0.3); color: #27C96A; }
+  .error   { background: rgba(232,67,59,0.1);  border: 1px solid rgba(232,67,59,0.3);  color: #E8433B; }
+  .pending { background: rgba(59,139,245,0.1); border: 1px solid rgba(59,139,245,0.3); color: #3B8BF5; }
+  .label { font-size: 11px; opacity: 0.6; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>⚡ DiamondUT — Connection Test</h1>
+
+<div class="result pending" id="status">
+  <div class="label">STATUS</div>
+  Testing connection to Supabase...
+</div>
+
+<div class="result pending" id="tables">
+  <div class="label">TABLES</div>
+  Checking database tables...
+</div>
+
+<div class="result pending" id="auth">
+  <div class="label">AUTH</div>
+  Checking auth system...
+</div>
+
+<script type="module">
+  import { supabase } from './supabase.js'
+
+  // Test 1 — basic connection
+  try {
+    const { data, error } = await supabase.from('leagues').select('count')
+    const statusEl = document.getElementById('status')
+    if (error) {
+      statusEl.className = 'result error'
+      statusEl.innerHTML = `<div class="label">STATUS</div>❌ Connection failed: ${error.message}`
+    } else {
+      statusEl.className = 'result success'
+      statusEl.innerHTML = `<div class="label">STATUS</div>✅ Supabase connected successfully!`
+    }
+  } catch(e) {
+    document.getElementById('status').className = 'result error'
+    document.getElementById('status').innerHTML = `<div class="label">STATUS</div>❌ Error: ${e.message}`
+  }
+
+  // Test 2 — check tables exist
+  try {
+    const tables = ['leagues','teams','players','rosters','auction_pool','bids','free_agents','matchups','scores','transactions','legendary_pool']
+    const results = []
+    for (const table of tables) {
+      const { error } = await supabase.from(table).select('count')
+      results.push({ table, ok: !error })
+    }
+    const tablesEl = document.getElementById('tables')
+    const allOk = results.every(r => r.ok)
+    if (allOk) {
+      tablesEl.className = 'result success'
+      tablesEl.innerHTML = `<div class="label">TABLES</div>✅ All 11 tables found:<br>${results.map(r => `&nbsp;&nbsp;• ${r.table}`).join('<br>')}`
+    } else {
+      tablesEl.className = 'result error'
+      tablesEl.innerHTML = `<div class="label">TABLES</div>❌ Some tables missing:<br>${results.map(r => `&nbsp;&nbsp;${r.ok ? '✅' : '❌'} ${r.table}`).join('<br>')}`
+    }
+  } catch(e) {
+    document.getElementById('tables').className = 'result error'
+    document.getElementById('tables').innerHTML = `<div class="label">TABLES</div>❌ Error: ${e.message}`
+  }
+
+  // Test 3 — auth system
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    const authEl = document.getElementById('auth')
+    authEl.className = 'result success'
+    authEl.innerHTML = `<div class="label">AUTH</div>✅ Auth system working · ${user ? 'Logged in as: ' + user.email : 'No user logged in (expected)'}`
+  } catch(e) {
+    document.getElementById('auth').className = 'result error'
+    document.getElementById('auth').innerHTML = `<div class="label">AUTH</div>❌ Error: ${e.message}`
+  }
+</script>
+</body>
+</html>
