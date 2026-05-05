@@ -9,8 +9,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
  
 // These values come from your Supabase project
 // Settings → API → Project URL + anon public key
-const SUPABASE_URL = 'https://YOUR_PROJECT_URL.supabase.co'
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY'
+const SUPABASE_URL = 'https://onesugfcbbreidnyzmzk.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZXN1Z2ZjYmJyZWlkbnl6bXprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjgwNjYsImV4cCI6MjA5MzM0NDA2Nn0.mS8Gl7NT08BDYsG-sycRKqcahXf0qicU2aFsPwwofzU'
  
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
  
@@ -352,4 +352,5 @@ export async function logTransaction(leagueId, teamId, type, playerId, relatedPl
     })
  
   if (error) throw error
+}  if (error) throw error
 }
