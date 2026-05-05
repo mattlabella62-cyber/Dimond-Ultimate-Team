@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiamondUT — Create League</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
+:root {
+  --font-display: 'Bebas Neue', 'Arial Black', sans-serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --gold: #F5C518; --gold2: #FFE066; --gold-glow: rgba(245,197,24,0.3);
+  --red: #E8433B; --green: #27C96A; --blue: #3B8BF5;
+  --bg: #060810; --surface: #0F1218; --surface2: #151B25;
+  --border: #1E2535; --border2: #283044;
+  --text: #E8ECF4; --muted: #5A6A82; --muted2: #3A4558;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-body); min-height: 100vh;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 20px;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(245,197,24,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(59,139,245,0.05) 0%, transparent 50%);
+}
+.setup-card {
+  width: 100%; max-width: 560px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.setup-header {
+  padding: 28px 36px 22px; border-bottom: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(245,197,24,0.06), transparent);
+  position: relative; overflow: hidden;
+}
+.setup-header::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-conic-gradient(rgba(255,255,255,0.02) 0deg 10deg, transparent 10deg 20deg);
+}
+.logo-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; position: relative; z-index: 1; }
+.logo-diamond { width: 38px; height: 38px; background: linear-gradient(135deg, var(--gold), #FF8C00); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); box-shadow: 0 0 20px rgba(245,197,24,0.4); }
+.logo-name { font-family: var(--font-display); font-size: 26px; letter-spacing: 3px; color: var(--gold); }
+.setup-title { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; color: var(--text); position: relative; z-index: 1; }
+.setup-sub { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-top: 4px; position: relative; z-index: 1; }
+.progress-bar { height: 3px; background: var(--border2); }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--green)); transition: width 0.4s ease; }
+.setup-body { padding: 28px 36px 36px; }
+.step-panel { display: none; }
+.step-panel.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+.step-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px; color: var(--muted2); text-transform: uppercase; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.step-label::after { content: ''; flex: 1; height: 1px; background: var(--border2); }
+.form-group { margin-bottom: 18px; }
+.form-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 7px; }
+.form-input { width: 100%; padding: 11px 14px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 14px; transition: border-color 0.15s; outline: none; }
+.form-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245,197,24,0.1); }
+.form-hint { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+.option-grid { display: grid; gap: 12px; margin-bottom: 8px; }
+.option-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.option-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.option-card { padding: 20px 16px; border-radius: 12px; border: 1px solid var(--border2); background: var(--surface2); cursor: pointer; transition: all 0.2s; text-align: center; position: relative; overflow: hidden; }
+.option-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0; opacity: 0; transition: opacity 0.2s; }
+.option-card:hover { transform: translateY(-2px); }
+.option-card.selected { border-color: var(--gold); background: rgba(245,197,24,0.06); }
+.option-card.selected::before { opacity: 1; background: var(--gold); }
+.option-card.blue.selected { border-color: var(--blue); background: rgba(59,139,245,0.06); }
+.option-card.blue.selected::before { background: var(--blue); }
+.option-card.green.selected { border-color: var(--green); background: rgba(39,201,106,0.06); }
+.option-card.green.selected::before { background: var(--green); }
+.option-card.red.selected { border-color: var(--red); background: rgba(232,67,59,0.06); }
+.option-card.red.selected::before { background: var(--red); }
+.option-icon { font-size: 32px; margin-bottom: 10px; }
+.option-name { font-family: var(--font-display); font-size: 17px; letter-spacing: 2px; margin-bottom: 6px; }
+.option-card.selected .option-name { color: var(--gold); }
+.option-card.blue.selected .option-name { color: var(--blue); }
+.option-card.green.selected .option-name { color: var(--green); }
+.option-card.red.selected .option-name { color: var(--red); }
+.option-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.option-tag { display: inline-block; margin-top: 8px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; padding: 2px 8px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border2); color: var(--muted); }
+.scoring-table { background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+.scoring-section-head { padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border2); font-family: var(--font-display); font-size: 13px; letter-spacing: 2px; color: var(--text); }
+.scoring-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.scoring-row:last-child { border-bottom: none; }
+.scoring-stat { color: var(--text); flex: 1; }
+.scoring-input { width: 70px; padding: 5px 8px; text-align: center; background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; color: var(--gold); font-family: var(--font-mono); font-size: 13px; font-weight: 700; outline: none; transition: border-color 0.15s; }
+.scoring-input:focus { border-color: var(--gold); }
+.scoring-unit { font-family: var(--font-mono); font-size: 10px; color: var(--muted); width: 30px; text-align: right; }
+.alert { padding: 11px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 18px; display: none; line-height: 1.5; }
+.alert.error   { background: rgba(232,67,59,0.1);  border: 1px solid rgba(232,67,59,0.3);  color: #ff8a84; display: block; }
+.alert.success { background: rgba(39,201,106,0.1); border: 1px solid rgba(39,201,106,0.3); color: #27C96A; display: block; }
+.btn-row { display: flex; gap: 10px; margin-top: 4px; }
+.btn { flex: 1; padding: 13px; border-radius: 8px; border: none; font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; cursor: pointer; transition: all 0.15s; text-align: center; }
+.btn-gold { background: var(--gold); color: var(--bg); }
+.btn-gold:hover { background: var(--gold2); transform: translateY(-1px); box-shadow: 0 6px 20px var(--gold-glow); }
+.btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted); max-width: 120px; }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.3); border-top-color: var(--bg); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.success-state { text-align: center; padding: 20px 0; }
+.success-icon { font-size: 56px; margin-bottom: 16px; }
+.success-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; color: var(--gold); margin-bottom: 8px; }
+.success-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.info-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; text-align: left; }
+.info-card { background: var(--surface2); border: 1px solid rgba(245,197,24,0.2); border-radius: 10px; padding: 14px 16px; }
+.info-card-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-bottom: 4px; }
+.info-card-val { font-family: var(--font-display); font-size: 18px; color: var(--gold); }
+.invite-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); word-break: break-all; cursor: pointer; transition: border-color 0.15s; margin-bottom: 20px; }
+.invite-box:hover { border-color: var(--gold); }
+.invite-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--muted); margin-bottom: 6px; text-align: left; }
+</style>
+</head>
+<body>
+<div class="setup-card">
+  <div class="setup-header">
+    <div class="logo-wrap">
+      <div class="logo-diamond"></div>
+      <div class="logo-name">DiamondUT</div>
+    </div>
+    <div class="setup-title" id="headerTitle">Create a League or Contest</div>
+    <div class="setup-sub" id="headerSub">CHOOSE YOUR FORMAT TO GET STARTED</div>
+  </div>
+  <div class="progress-bar"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="setup-body">
+
+    <!-- STEP 0 — FORMAT -->
+    <div class="step-panel active" id="step0">
+      <div class="step-label">What do you want to create?</div>
+      <div class="alert" id="step0Alert"></div>
+      <div class="option-grid cols-2">
+        <div class="option-card" id="optDaily" onclick="selectFormat('daily')">
+          <div class="option-icon">⚡</div>
+          <div class="option-name">Daily Contest</div>
+          <div class="option-desc">One day. Pick your lineup, score points, win. Like DraftKings.</div>
+          <div class="option-tag">Head to Head · Tournament</div>
+        </div>
+        <div class="option-card" id="optWeekly" onclick="selectFormat('weekly')">
+          <div class="option-icon">🏆</div>
+          <div class="option-name">Season League</div>
+          <div class="option-desc">Full season. Manage your roster week to week. Trade, auction, win.</div>
+          <div class="option-tag">Weekly · Head to Head</div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:20px;">
+        <button class="btn btn-gold" onclick="goNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 1 — SPORT -->
+    <div class="step-panel" id="step1">
+      <div class="step-label">Pick your sport</div>
+      <div class="alert" id="step1Alert"></div>
+      <div class="option-grid cols-2">
+        <div class="option-card blue" id="optMLB" onclick="selectSport('MLB')">
+          <div class="option-icon">⚾</div>
+          <div class="option-name">MLB</div>
+          <div class="option-desc">Major League Baseball. Batters, pitchers, full roster.</div>
+        </div>
+        <div class="option-card green" id="optNFL" onclick="selectSport('NFL')">
+          <div class="option-icon">🏈</div>
+          <div class="option-name">NFL</div>
+          <div class="option-desc">National Football League. QB, RB, WR, TE, K and more.</div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+        <button class="btn btn-gold" onclick="goNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 DAILY — CONTEST TYPE + INFO -->
+    <div class="step-panel" id="step2daily">
+      <div class="step-label">Contest format</div>
+      <div class="alert" id="step2dailyAlert"></div>
+      <div class="option-grid cols-2" style="margin-bottom:18px;">
+        <div class="option-card" id="optH2H" onclick="selectContestType('h2h')">
+          <div class="option-icon">⚔️</div>
+          <div class="option-name">Head to Head</div>
+          <div class="option-desc">Your lineup vs one opponent. Winner takes all.</div>
+          <div class="option-tag">2 players</div>
+        </div>
+        <div class="option-card red" id="optTournament" onclick="selectContestType('tournament')">
+          <div class="option-icon">🏅</div>
+          <div class="option-name">Tournament</div>
+          <div class="option-desc">Compete against the whole field. Highest score wins.</div>
+          <div class="option-tag">Up to 10 players</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contest Name</label>
+        <input class="form-input" type="text" id="contestName" placeholder="e.g. Monday Night Showdown" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Team Name</label>
+        <input class="form-input" type="text" id="dailyTeamName" placeholder="e.g. Thunder Bats" />
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+        <button class="btn btn-gold" onclick="goNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 WEEKLY — LEAGUE INFO -->
+    <div class="step-panel" id="step2weekly">
+      <div class="step-label">League details</div>
+      <div class="alert" id="step2weeklyAlert"></div>
+      <div class="form-group">
+        <label class="form-label">League Name</label>
+        <input class="form-input" type="text" id="leagueName" placeholder="e.g. Friday Night Ballers" />
+        <div class="form-hint">All teams in your league will see this name</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Team Name</label>
+        <input class="form-input" type="text" id="weeklyTeamName" placeholder="e.g. Thunder Bats" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Max Teams</label>
+        <select class="form-input" id="maxTeams">
+          <option value="6">6 Teams</option>
+          <option value="8">8 Teams</option>
+          <option value="10" selected>10 Teams</option>
+          <option value="12">12 Teams</option>
+        </select>
+        <div class="form-hint">You'll get an invite link to share after creating</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+        <button class="btn btn-gold" onclick="goNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 — CUSTOM SCORING -->
+    <div class="step-panel" id="step3">
+      <div class="step-label">Customize scoring</div>
+      <div class="alert" id="step3Alert"></div>
+
+      <div id="mlbScoring" style="display:none;">
+        <div class="scoring-table" style="margin-bottom:12px;">
+          <div class="scoring-section-head">⚾ Batting</div>
+          <div class="scoring-row"><span class="scoring-stat">Single</span><input class="scoring-input" type="number" id="s_single" value="1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Double</span><input class="scoring-input" type="number" id="s_double" value="2" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Triple</span><input class="scoring-input" type="number" id="s_triple" value="3" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Home Run</span><input class="scoring-input" type="number" id="s_hr" value="4" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">RBI</span><input class="scoring-input" type="number" id="s_rbi" value="1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Run Scored</span><input class="scoring-input" type="number" id="s_run" value="1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Walk</span><input class="scoring-input" type="number" id="s_bb" value="1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Stolen Base</span><input class="scoring-input" type="number" id="s_sb" value="2" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Hit By Pitch</span><input class="scoring-input" type="number" id="s_hbp" value="1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Strikeout (batter)</span><input class="scoring-input" type="number" id="s_kbatter" value="-1" step="0.5"><span class="scoring-unit">pts</span></div>
+        </div>
+        <div class="scoring-table">
+          <div class="scoring-section-head">⚾ Pitching</div>
+          <div class="scoring-row"><span class="scoring-stat">Win</span><input class="scoring-input" type="number" id="s_win" value="5" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Inning Pitched</span><input class="scoring-input" type="number" id="s_ip" value="1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Strikeout (pitcher)</span><input class="scoring-input" type="number" id="s_kpitcher" value="1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Earned Run</span><input class="scoring-input" type="number" id="s_er" value="-1" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Walk Allowed</span><input class="scoring-input" type="number" id="s_bbagainst" value="-0.5" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Save</span><input class="scoring-input" type="number" id="s_save" value="5" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Blown Save</span><input class="scoring-input" type="number" id="s_blownsave" value="-3" step="0.5"><span class="scoring-unit">pts</span></div>
+        </div>
+      </div>
+
+      <div id="nflScoring" style="display:none;">
+        <div class="scoring-table" style="margin-bottom:12px;">
+          <div class="scoring-section-head">🏈 Passing</div>
+          <div class="scoring-row"><span class="scoring-stat">Passing TD</span><input class="scoring-input" type="number" id="n_passtd" value="4" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Passing Yards (per yd)</span><input class="scoring-input" type="number" id="n_passyd" value="0.04" step="0.01"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Interception</span><input class="scoring-input" type="number" id="n_int" value="-2" step="0.5"><span class="scoring-unit">pts</span></div>
+        </div>
+        <div class="scoring-table" style="margin-bottom:12px;">
+          <div class="scoring-section-head">🏈 Rushing</div>
+          <div class="scoring-row"><span class="scoring-stat">Rushing TD</span><input class="scoring-input" type="number" id="n_rushtd" value="6" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Rushing Yards (per yd)</span><input class="scoring-input" type="number" id="n_rushyd" value="0.1" step="0.01"><span class="scoring-unit">pts</span></div>
+        </div>
+        <div class="scoring-table" style="margin-bottom:12px;">
+          <div class="scoring-section-head">🏈 Receiving</div>
+          <div class="scoring-row"><span class="scoring-stat">Receiving TD</span><input class="scoring-input" type="number" id="n_rectd" value="6" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Receiving Yards (per yd)</span><input class="scoring-input" type="number" id="n_recyd" value="0.1" step="0.01"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">Reception (PPR)</span><input class="scoring-input" type="number" id="n_rec" value="0.5" step="0.5"><span class="scoring-unit">pts</span></div>
+        </div>
+        <div class="scoring-table">
+          <div class="scoring-section-head">🏈 Other</div>
+          <div class="scoring-row"><span class="scoring-stat">Fumble Lost</span><input class="scoring-input" type="number" id="n_fum" value="-2" step="0.5"><span class="scoring-unit">pts</span></div>
+          <div class="scoring-row"><span class="scoring-stat">2pt Conversion</span><input class="scoring-input" type="number" id="n_2pt" value="2" step="0.5"><span class="scoring-unit">pts</span></div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:18px;">
+        <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+        <button class="btn btn-gold" id="createBtn" onclick="createLeague()">Create →</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="step-panel" id="stepSuccess">
+      <div class="success-state">
+        <div class="success-icon" id="successIcon">🎉</div>
+        <div class="success-title" id="successTitle">League Created!</div>
+        <div class="success-sub" id="successSub">Your roster has been built. You're ready to play!</div>
+        <div class="info-cards" id="infoCards"></div>
+        <div id="inviteWrap" style="display:none;">
+          <div class="invite-label">INVITE LINK — click to copy</div>
+          <div class="invite-box" id="inviteLink" onclick="copyInvite()"></div>
+        </div>
+        <button class="btn btn-gold" style="width:100%;" onclick="window.location.href='dashboard.html'">Go to Dashboard →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { supabase } from './supabase.js'
+
+let format = null
+let sport = null
+let contestType = null
+let currentStep = 'step0'
+let stepHistory = ['step0']
+
+const PROGRESS = { step0:0, step1:20, step2daily:45, step2weekly:45, step3:75, stepSuccess:100 }
+
+function showStep(id) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+  currentStep = id
+  document.getElementById('progressFill').style.width = (PROGRESS[id] || 0) + '%'
+}
+
+function navigate(id) { stepHistory.push(id); showStep(id); }
+window.goBack = () => { stepHistory.pop(); showStep(stepHistory[stepHistory.length-1] || 'step0'); }
+
+window.selectFormat = (f) => {
+  format = f
+  document.getElementById('optDaily').classList.toggle('selected', f==='daily')
+  document.getElementById('optWeekly').classList.toggle('selected', f==='weekly')
+}
+window.selectSport = (s) => {
+  sport = s
+  document.getElementById('optMLB').classList.toggle('selected', s==='MLB')
+  document.getElementById('optNFL').classList.toggle('selected', s==='NFL')
+}
+window.selectContestType = (t) => {
+  contestType = t
+  document.getElementById('optH2H').classList.toggle('selected', t==='h2h')
+  document.getElementById('optTournament').classList.toggle('selected', t==='tournament')
+}
+
+function showAlert(id, msg, type) { const el=document.getElementById(id); el.textContent=msg; el.className=`alert ${type}`; }
+
+window.goNext = () => {
+  if (currentStep === 'step0') {
+    if (!format) { showAlert('step0Alert','Please select a format.','error'); return }
+    document.getElementById('headerTitle').textContent = format==='daily' ? 'Create Daily Contest' : 'Create Season League'
+    document.getElementById('headerSub').textContent = format==='daily' ? 'ONE DAY · SCORE · WIN' : 'SEASON LONG · MANAGE · WIN'
+    navigate('step1'); return
+  }
+  if (currentStep === 'step1') {
+    if (!sport) { showAlert('step1Alert','Please select a sport.','error'); return }
+    document.getElementById('mlbScoring').style.display = sport==='MLB' ? 'block' : 'none'
+    document.getElementById('nflScoring').style.display = sport==='NFL' ? 'block' : 'none'
+    navigate(format==='daily' ? 'step2daily' : 'step2weekly'); return
+  }
+  if (currentStep === 'step2daily') {
+    if (!contestType) { showAlert('step2dailyAlert','Please select a contest format.','error'); return }
+    if (!document.getElementById('contestName').value.trim() || !document.getElementById('dailyTeamName').value.trim()) {
+      showAlert('step2dailyAlert','Please fill in all fields.','error'); return
+    }
+    navigate('step3'); return
+  }
+  if (currentStep === 'step2weekly') {
+    if (!document.getElementById('leagueName').value.trim() || !document.getElementById('weeklyTeamName').value.trim()) {
+      showAlert('step2weeklyAlert','Please fill in all fields.','error'); return
+    }
+    navigate('step3'); return
+  }
+}
+
+window.createLeague = async () => {
+  const btn = document.getElementById('createBtn')
+  btn.disabled = true
+  btn.innerHTML = '<span class="spinner"></span> Creating...'
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not logged in.')
+
+    const isDaily = format === 'daily'
+    const leagueName = isDaily ? document.getElementById('contestName').value.trim() : document.getElementById('leagueName').value.trim()
+    const teamName   = isDaily ? document.getElementById('dailyTeamName').value.trim() : document.getElementById('weeklyTeamName').value.trim()
+    const maxTeams   = isDaily ? (contestType === 'h2h' ? 2 : 10) : parseInt(document.getElementById('maxTeams').value)
+
+    // Create league
+    const { data: league, error: leagueErr } = await supabase.from('leagues').insert({
+      name: leagueName, mode: format, nfl_scoring: 'half_ppr',
+      max_teams: maxTeams, week_number: 1, season: 2026
+    }).select().single()
+    if (leagueErr) throw leagueErr
+
+    // Create team
+    const { data: team, error: teamErr } = await supabase.from('teams').insert({
+      league_id: league.id, user_id: user.id, team_name: teamName, coins: 500
+    }).select().single()
+    if (teamErr) throw teamErr
+
+    // Assign balanced roster
+    const slots = [{tier:'platinum',count:1},{tier:'gold',count:3},{tier:'silver',count:6},{tier:'bronze',count:8}]
+    const usedIds = []
+    const rosterRows = []
+
+    for (const slot of slots) {
+      const exclude = usedIds.length > 0 ? `(${usedIds.map(id=>`'${id}'`).join(',')})` : `('00000000-0000-0000-0000-000000000000')`
+      const { data: avail } = await supabase.from('players').select('id,position').eq('tier',slot.tier).eq('sport',sport).eq('is_injured',false).not('id','in',exclude).order('projected_points',{ascending:false}).limit(slot.count*5)
+      const picked = (avail||[]).sort(()=>Math.random()-0.5).slice(0,slot.count)
+      picked.forEach(p => { usedIds.push(p.id); rosterRows.push({team_id:team.id,player_id:p.id,league_id:league.id,slot:p.position,is_active:true}) })
+    }
+
+    if (rosterRows.length > 0) {
+      const { error: rosterErr } = await supabase.from('rosters').insert(rosterRows)
+      if (rosterErr) throw rosterErr
+    }
+
+    localStorage.setItem('activeLeagueId', league.id)
+    localStorage.setItem('activeTeamId', team.id)
+
+    document.getElementById('successIcon').textContent = isDaily ? '⚡' : '🏆'
+    document.getElementById('successTitle').textContent = isDaily ? 'Contest Created!' : 'League Created!'
+    document.getElementById('successSub').textContent = isDaily ? `Your ${sport} daily contest is live!` : `Your ${sport} season league is ready. Invite your friends!`
+    document.getElementById('infoCards').innerHTML = `
+      <div class="info-card"><div class="info-card-label">${isDaily?'CONTEST':'LEAGUE'} NAME</div><div class="info-card-val">${leagueName}</div></div>
+      <div class="info-card"><div class="info-card-label">YOUR TEAM</div><div class="info-card-val">${teamName}</div></div>
+      <div class="info-card"><div class="info-card-label">SPORT · MODE</div><div class="info-card-val">${sport} · ${format.toUpperCase()}</div></div>
+      <div class="info-card"><div class="info-card-label">STARTING COINS</div><div class="info-card-val">500 🪙</div></div>
+    `
+    if (!isDaily) {
+      const url = `${window.location.origin}/join.html?league=${league.id}`
+      window.inviteUrl = url
+      document.getElementById('inviteWrap').style.display = 'block'
+      document.getElementById('inviteLink').textContent = url
+    }
+    navigate('stepSuccess')
+
+  } catch(err) {
+    showAlert('step3Alert','❌ '+err.message,'error')
+    btn.disabled = false
+    btn.textContent = 'Create →'
+  }
+}
+
+window.copyInvite = () => {
+  navigator.clipboard.writeText(window.inviteUrl)
+  document.getElementById('inviteLink').textContent = '✅ Copied to clipboard!'
+  setTimeout(()=>{ document.getElementById('inviteLink').textContent = window.inviteUrl }, 2000)
+}
+
+const { data: { user } } = await supabase.auth.getUser()
+if (!user) window.location.href = 'login.html'
+</script>
+</body>
+</html>
