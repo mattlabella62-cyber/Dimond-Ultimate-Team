@@ -1,191 +1,112 @@
 // ═══════════════════════════════════════════════════════
-// DiamondUT — Player Sync v4
+// DiamondUT — Player Sync v5
 // api/sync-players.js
 //
-// Data sources:
-//   NFL Stats  → nflverse/nflverse-data (GitHub, open source, free)
-//   MLB Stats  → (placeholder until baseballr integrated)
-//   Player IDs → Sleeper public player endpoint (documented, free)
-//
-// Flow:
-//   1. Fetch real 2025 NFL stats from nflfastR CSV
-//   2. Fetch Sleeper player list for names/teams/injuries
-//   3. Match players by name/team
-//   4. Run through DiamondUT ranking engine
-//   5. Save to Supabase
+// Set maxDuration to 60 seconds for Vercel Pro
+// or use the split approach for free tier
 // ═══════════════════════════════════════════════════════
  
 const { createClient } = require('@supabase/supabase-js')
-const { calcNFLScore, assignTier, isActivePlayer, TIER_VALUES, NFL_SCORING, MLB_SCORING_DEFAULT } = require('./ranking-engine')
+const { calcNFLScore, assignTier, TIER_VALUES, NFL_SCORING } = require('./ranking-engine')
  
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
  
+// Tell Vercel this function can run up to 60 seconds
+module.exports.config = { maxDuration: 60 }
+ 
 const NFL_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K']
 const MLB_POSITIONS = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
 const INJURED_STATUSES = ['Out', 'IR', 'IL', 'PUP', '60-Day IL', 'NFI', 'Suspended']
  
-// ─── FETCH AND PARSE CSV ───────────────────────────────
-async function fetchCSV(url) {
-  console.log(`Fetching CSV: ${url}`)
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`CSV fetch failed: ${res.status} ${url}`)
-  const text = await res.text()
- 
-  // Parse CSV
-  const lines  = text.trim().split('\n')
+// ─── PARSE CSV ─────────────────────────────────────────
+function parseCSV(text) {
+  const lines   = text.trim().split('\n')
   const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''))
+  const rows    = []
  
-  const rows = []
   for (let i = 1; i < lines.length; i++) {
-    const vals = parseCSVLine(lines[i])
-    if (vals.length !== headers.length) continue
+    const vals = lines[i].split(',')
+    if (vals.length < headers.length) continue
     const row = {}
     headers.forEach((h, idx) => {
-      const v = vals[idx]?.trim().replace(/"/g, '')
+      const v = (vals[idx] || '').trim().replace(/"/g, '')
       row[h] = v === '' || v === 'NA' ? null : v
     })
     rows.push(row)
   }
- 
-  console.log(`Parsed ${rows.length} rows`)
   return rows
 }
  
-// Handle quoted CSV fields
-function parseCSVLine(line) {
-  const result = []
-  let current  = ''
-  let inQuotes = false
-  for (let i = 0; i < line.length; i++) {
-    if (line[i] === '"') {
-      inQuotes = !inQuotes
-    } else if (line[i] === ',' && !inQuotes) {
-      result.push(current)
-      current = ''
-    } else {
-      current += line[i]
-    }
+// ─── FETCH WITH TIMEOUT ────────────────────────────────
+async function fetchWithTimeout(url, timeoutMs = 30000) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch(url, { signal: controller.signal })
+    clearTimeout(timer)
+    return res
+  } catch(e) {
+    clearTimeout(timer)
+    throw e
   }
-  result.push(current)
-  return result
 }
  
 // ─── FETCH SLEEPER PLAYERS ─────────────────────────────
 async function fetchSleeperPlayers(sport) {
-  const url = `https://api.sleeper.app/v1/players/${sport.toLowerCase()}`
-  console.log(`Fetching Sleeper ${sport} players...`)
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`Sleeper fetch failed: ${res.status}`)
-  const data = await res.json()
-  console.log(`Got ${Object.keys(data).length} Sleeper ${sport} players`)
-  return data
+  const res = await fetchWithTimeout(`https://api.sleeper.app/v1/players/${sport.toLowerCase()}`)
+  if (!res.ok) throw new Error(`Sleeper ${sport} failed: ${res.status}`)
+  return res.json()
 }
  
-// ─── PROCESS NFL WITH nflfastR DATA ────────────────────
+// ─── PROCESS NFL ───────────────────────────────────────
 async function processNFL() {
-  console.log('\n═══ Processing NFL ═══')
+  console.log('Processing NFL...')
  
-  // Dynamic year — NFL season Sept-Feb
-  const now   = new Date()
-  const year  = now.getFullYear()
-  const month = now.getMonth() + 1
-  const nflSeason = month <= 2 ? year - 1 : year
+  const now    = new Date()
+  const year   = now.getFullYear()
+  const month  = now.getMonth() + 1
+  const season = month <= 2 ? year - 1 : year
  
-  // Fetch nflfastR player stats CSV
-  // Falls back to previous season if current not available
+  // Fetch Sleeper players first (fast)
+  const sleeperPlayers = await fetchSleeperPlayers('nfl')
+ 
+  // Try nflfastR CSV for real stats
   let statsRows = []
-  for (const season of [nflSeason, nflSeason - 1]) {
+  for (const s of [season, season - 1]) {
     try {
-      const url = `https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_${season}.csv`
-      statsRows = await fetchCSV(url)
+      const url = `https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_${s}.csv`
+      console.log(`Trying nflfastR ${s}...`)
+      const res = await fetchWithTimeout(url, 20000)
+      if (!res.ok) continue
+      const text = await res.text()
+      statsRows = parseCSV(text)
       if (statsRows.length > 100) {
-        console.log(`Using NFL ${season} stats (${statsRows.length} rows)`)
+        console.log(`Got ${statsRows.length} rows for ${s}`)
         break
       }
     } catch(e) {
-      console.log(`NFL ${season} stats not available: ${e.message}`)
+      console.log(`nflfastR ${s} failed: ${e.message}`)
     }
   }
  
-  if (statsRows.length === 0) {
-    console.log('No NFL stats available — using position-based ranking only')
+  // If we got real stats — use them
+  if (statsRows.length > 100) {
+    return processNFLWithStats(statsRows, sleeperPlayers)
   }
  
-  // Aggregate stats by player (season totals)
-  // nflfastR columns: player_id, player_name, position, recent_team,
-  //   completions, attempts, passing_yards, passing_tds, interceptions,
-  //   carries, rushing_yards, rushing_tds,
-  //   receptions, targets, receiving_yards, receiving_tds,
-  //   sacks, passing_2pt_conversions, rushing_2pt_conversions,
-  //   receiving_2pt_conversions, fantasy_points, fantasy_points_ppr
-  const statsByPlayer = {}
-  for (const row of statsRows) {
-    const pid  = row.player_id
-    const pos  = row.position
-    if (!pid || !NFL_POSITIONS.includes(pos)) continue
+  // Fallback to Sleeper position ranking
+  console.log('Using Sleeper position ranking fallback')
+  return processNFLFallback(sleeperPlayers)
+}
  
-    if (!statsByPlayer[pid]) {
-      statsByPlayer[pid] = {
-        player_id:   pid,
-        player_name: row.player_display_name || row.player_name,
-        position:    pos,
-        team:        row.recent_team,
-        games:       0,
-        // Passing
-        pass_yd: 0, pass_td: 0, pass_int: 0, pass_2pt: 0,
-        // Rushing
-        rush_yd: 0, rush_td: 0, rush_2pt: 0,
-        // Receiving
-        rec_yd: 0, rec_td: 0, rec: 0, rec_2pt: 0,
-        // Misc
-        fum_lost: 0,
-        // Kicker
-        fg_made_0_39: 0, fg_made_40_49: 0, fg_made_50_59: 0, fg_made_60_plus: 0,
-        fg_miss: 0, pat_made: 0, pat_miss: 0,
-        // Fantasy totals (for cross-check)
-        fantasy_pts_std: 0,
-        fantasy_pts_ppr: 0
-      }
-    }
+// NFL with real nflfastR stats
+function processNFLWithStats(statsRows, sleeperPlayers) {
+  const scoring = NFL_SCORING.half_ppr
  
-    const p = statsByPlayer[pid]
-    p.games       += 1
-    p.team         = row.recent_team || p.team // update to most recent team
- 
-    // Passing
-    p.pass_yd  += parseFloat(row.passing_yards  || 0)
-    p.pass_td  += parseFloat(row.passing_tds    || 0)
-    p.pass_int += parseFloat(row.interceptions  || 0)
-    p.pass_2pt += parseFloat(row.passing_2pt_conversions || 0)
- 
-    // Rushing
-    p.rush_yd  += parseFloat(row.rushing_yards  || 0)
-    p.rush_td  += parseFloat(row.rushing_tds    || 0)
-    p.rush_2pt += parseFloat(row.rushing_2pt_conversions || 0)
- 
-    // Receiving
-    p.rec_yd   += parseFloat(row.receiving_yards || 0)
-    p.rec_td   += parseFloat(row.receiving_tds   || 0)
-    p.rec      += parseFloat(row.receptions      || 0)
-    p.rec_2pt  += parseFloat(row.receiving_2pt_conversions || 0)
- 
-    // Misc
-    p.fum_lost += parseFloat(row.sack_fumbles_lost || 0) + parseFloat(row.rushing_fumbles_lost || 0)
- 
-    // Fantasy point totals
-    p.fantasy_pts_std += parseFloat(row.fantasy_points     || 0)
-    p.fantasy_pts_ppr += parseFloat(row.fantasy_points_ppr || 0)
-  }
- 
-  console.log(`Aggregated stats for ${Object.keys(statsByPlayer).length} NFL players`)
- 
-  // Fetch Sleeper players for names, injury status, Sleeper IDs
-  const sleeperPlayers = await fetchSleeperPlayers('nfl')
- 
-  // Build name → sleeper player map for matching
+  // Build Sleeper lookup by name
   const nameToSleeper = {}
   Object.values(sleeperPlayers).forEach(p => {
     if (!p.first_name || !p.last_name) return
@@ -193,134 +114,143 @@ async function processNFL() {
     nameToSleeper[key] = p
   })
  
-  // Score each player using our ranking engine
+  // Aggregate season stats per player
+  const byPlayer = {}
+  for (const row of statsRows) {
+    const pos = row.position
+    if (!pos || !NFL_POSITIONS.includes(pos)) continue
+    const pid = row.player_id
+    if (!pid) continue
+ 
+    if (!byPlayer[pid]) {
+      byPlayer[pid] = {
+        pid, pos,
+        name:  row.player_display_name || row.player_name || '',
+        team:  row.recent_team || '',
+        games: 0,
+        pass_yd:0, pass_td:0, pass_int:0, pass_2pt:0,
+        rush_yd:0, rush_td:0, rush_2pt:0,
+        rec_yd:0,  rec_td:0,  rec:0,     rec_2pt:0,
+        fum_lost:0
+      }
+    }
+ 
+    const p = byPlayer[pid]
+    p.games++
+    p.team     = row.recent_team || p.team
+    p.pass_yd  += +row.passing_yards   || 0
+    p.pass_td  += +row.passing_tds     || 0
+    p.pass_int += +row.interceptions   || 0
+    p.rush_yd  += +row.rushing_yards   || 0
+    p.rush_td  += +row.rushing_tds     || 0
+    p.rec_yd   += +row.receiving_yards || 0
+    p.rec_td   += +row.receiving_tds   || 0
+    p.rec      += +row.receptions      || 0
+    p.fum_lost += (+row.sack_fumbles_lost || 0) + (+row.rushing_fumbles_lost || 0)
+  }
+ 
+  console.log(`Aggregated ${Object.keys(byPlayer).length} NFL players`)
+ 
+  // Score and match to Sleeper
   const scored = []
-  const scoring = NFL_SCORING.half_ppr
+  for (const stats of Object.values(byPlayer)) {
+    if (!stats.team || stats.team === 'FA' || stats.games === 0) continue
  
-  for (const [pid, stats] of Object.entries(statsByPlayer)) {
-    if (!stats.team || stats.team === '' || stats.games === 0) continue
- 
-    // Match to Sleeper player
-    const nameKey = (stats.player_name || '').toLowerCase().replace(/[^a-z ]/g, '')
+    const nameKey = stats.name.toLowerCase().replace(/[^a-z ]/g, '')
     const sleeper = nameToSleeper[nameKey]
- 
-    // Skip if injured/inactive in Sleeper
-    const isInjured = sleeper ? INJURED_STATUSES.includes(sleeper.injury_status) : false
     const sleeperTeam = sleeper?.team || stats.team
+    if (!sleeperTeam || sleeperTeam === 'FA') continue
  
-    // Skip FA players (retired/unsigned)
-    if (sleeperTeam === 'FA' || sleeperTeam === '') continue
- 
-    // Calculate DiamondUT score using real stats
     const seasonPts = calcNFLScore(stats, scoring)
-    const avgPts    = stats.games > 0 ? seasonPts / stats.games : 0
+    const avgPts    = seasonPts / stats.games
  
     scored.push({
-      sleeper_id:       sleeper?.player_id || `nfl_${pid}`,
-      name:             stats.player_name,
-      position:         stats.position,
-      team:             sleeperTeam,
-      sport:            'NFL',
-      is_injured:       isInjured,
-      seasonTotalPts:   Math.round(seasonPts * 100) / 100,
-      seasonAvgPts:     Math.round(avgPts * 100) / 100,
-      games:            stats.games,
-      headshot_url:     sleeper ? `https://sleepercdn.com/content/nfl/players/thumb/${sleeper.player_id}.jpg` : null
+      sleeper_id:     sleeper?.player_id || `nfl_${stats.pid}`,
+      name:           stats.name,
+      position:       stats.pos,
+      team:           sleeperTeam,
+      sport:          'NFL',
+      is_injured:     INJURED_STATUSES.includes(sleeper?.injury_status),
+      seasonTotalPts: Math.round(seasonPts * 100) / 100,
+      seasonAvgPts:   Math.round(avgPts * 100) / 100,
+      headshot_url:   sleeper ? `https://sleepercdn.com/content/nfl/players/thumb/${sleeper.player_id}.jpg` : null
     })
   }
  
-  // If we had no stats data, fall back to Sleeper position ranking
-  if (scored.length < 50) {
-    console.log('Falling back to Sleeper position ranking...')
-    return processNFLFallback(sleeperPlayers)
-  }
- 
-  // Rank by position using real season points
-  return rankAndAssignTiers(scored, 'NFL')
+  return rankAndTier(scored, 'NFL', false)
 }
  
-// Fallback: use Sleeper search_rank when no stats available
+// NFL fallback using Sleeper search_rank
 function processNFLFallback(sleeperPlayers) {
-  const active = Object.values(sleeperPlayers).filter(p => {
-    if (!p.team || p.team === 'FA' || p.team === '') return false
-    if (p.active === false) return false
-    if (!p.position || !NFL_POSITIONS.includes(p.position)) return false
-    if (!p.first_name || !p.last_name) return false
-    return true
-  })
+  const scored = Object.values(sleeperPlayers)
+    .filter(p =>
+      p.team && p.team !== 'FA' && p.team !== '' &&
+      p.active !== false &&
+      p.position && NFL_POSITIONS.includes(p.position) &&
+      p.first_name && p.last_name
+    )
+    .map(p => ({
+      sleeper_id:     p.player_id,
+      name:           `${p.first_name} ${p.last_name}`,
+      position:       p.position,
+      team:           p.team,
+      sport:          'NFL',
+      is_injured:     INJURED_STATUSES.includes(p.injury_status),
+      seasonTotalPts: 0,
+      seasonAvgPts:   0,
+      search_rank:    p.search_rank || 999999,
+      headshot_url:   `https://sleepercdn.com/content/nfl/players/thumb/${p.player_id}.jpg`
+    }))
  
-  const scored = active.map(p => ({
-    sleeper_id:     p.player_id,
-    name:           `${p.first_name} ${p.last_name}`,
-    position:       p.position,
-    team:           p.team,
-    sport:          'NFL',
-    is_injured:     INJURED_STATUSES.includes(p.injury_status),
-    seasonTotalPts: 0,
-    seasonAvgPts:   0,
-    games:          0,
-    search_rank:    p.search_rank || 999999,
-    headshot_url:   `https://sleepercdn.com/content/nfl/players/thumb/${p.player_id}.jpg`
-  }))
- 
-  return rankAndAssignTiers(scored, 'NFL', true)
+  return rankAndTier(scored, 'NFL', true)
 }
  
-// ─── PROCESS MLB (position-based for now) ──────────────
-// baseballr integration coming — same pattern as nflfastR
+// ─── PROCESS MLB ───────────────────────────────────────
 async function processMLB() {
-  console.log('\n═══ Processing MLB ═══')
+  console.log('Processing MLB...')
   const sleeperPlayers = await fetchSleeperPlayers('mlb')
  
-  const active = Object.values(sleeperPlayers).filter(p => {
-    if (!p.team || p.team === 'FA' || p.team === '') return false
-    if (p.active === false) return false
-    if (!p.position || !MLB_POSITIONS.includes(p.position)) return false
-    if (!p.first_name || !p.last_name) return false
-    return true
-  })
+  const scored = Object.values(sleeperPlayers)
+    .filter(p =>
+      p.team && p.team !== 'FA' && p.team !== '' &&
+      p.active !== false &&
+      p.position && MLB_POSITIONS.includes(p.position) &&
+      p.first_name && p.last_name
+    )
+    .map(p => ({
+      sleeper_id:     p.player_id,
+      name:           `${p.first_name} ${p.last_name}`,
+      position:       p.position,
+      team:           p.team,
+      sport:          'MLB',
+      is_injured:     INJURED_STATUSES.includes(p.injury_status),
+      seasonTotalPts: 0,
+      seasonAvgPts:   0,
+      search_rank:    p.search_rank || 999999,
+      headshot_url:   `https://sleepercdn.com/content/mlb/players/thumb/${p.player_id}.jpg`
+    }))
  
-  console.log(`Active MLB players: ${active.length}`)
- 
-  const scored = active.map(p => ({
-    sleeper_id:     p.player_id,
-    name:           `${p.first_name} ${p.last_name}`,
-    position:       p.position,
-    team:           p.team,
-    sport:          'MLB',
-    is_injured:     INJURED_STATUSES.includes(p.injury_status),
-    seasonTotalPts: 0,
-    seasonAvgPts:   0,
-    games:          0,
-    search_rank:    p.search_rank || 999999,
-    headshot_url:   `https://sleepercdn.com/content/mlb/players/thumb/${p.player_id}.jpg`
-  }))
- 
-  return rankAndAssignTiers(scored, 'MLB', true)
+  console.log(`Active MLB players: ${scored.length}`)
+  return rankAndTier(scored, 'MLB', true)
 }
  
 // ─── RANK AND ASSIGN TIERS ─────────────────────────────
-function rankAndAssignTiers(players, sport, useSearchRank = false) {
+function rankAndTier(players, sport, useSearchRank) {
   const positions = sport === 'NFL' ? NFL_POSITIONS : MLB_POSITIONS
   const ranked    = []
  
   for (const pos of positions) {
-    const atPos = players.filter(p => p.position === pos)
- 
-    // Sort by real stats if available, otherwise search_rank
-    atPos.sort((a, b) => {
-      if (useSearchRank) {
-        return (a.search_rank || 999999) - (b.search_rank || 999999)
-      }
-      return b.seasonAvgPts - a.seasonAvgPts
-    })
+    const atPos = players
+      .filter(p => p.position === pos)
+      .sort((a, b) => useSearchRank
+        ? (a.search_rank || 999999) - (b.search_rank || 999999)
+        : b.seasonAvgPts - a.seasonAvgPts
+      )
  
     console.log(`${pos}: ${atPos.length} players`)
  
     atPos.forEach((p, idx) => {
-      const rank = idx + 1
-      const tier = assignTier(rank, pos, sport)
- 
+      const tier = assignTier(idx + 1, pos, sport)
       ranked.push({
         sleeper_id:       p.sleeper_id,
         name:             p.name,
@@ -345,12 +275,10 @@ function rankAndAssignTiers(players, sport, useSearchRank = false) {
  
 // ─── SAVE TO SUPABASE ───────────────────────────────────
 async function saveToSupabase(players) {
-  console.log(`\nSaving ${players.length} players to Supabase...`)
- 
   const seen = new Map()
   players.forEach(p => seen.set(p.sleeper_id, p))
   const deduped = Array.from(seen.values())
-  console.log(`After dedup: ${deduped.length} unique players`)
+  console.log(`Saving ${deduped.length} players...`)
  
   const batchSize = 250
   for (let i = 0; i < deduped.length; i += batchSize) {
@@ -358,49 +286,45 @@ async function saveToSupabase(players) {
     const { error } = await supabase
       .from('players')
       .upsert(batch, { onConflict: 'sleeper_id', ignoreDuplicates: false })
-    if (error) throw new Error(`Batch ${i} failed: ${error.message}`)
-    console.log(`Saved ${i + batch.length} / ${deduped.length}`)
+    if (error) throw new Error(`Batch ${i} error: ${error.message}`)
   }
+ 
+  console.log('Save complete')
 }
  
 // ─── MAIN HANDLER ───────────────────────────────────────
 module.exports = async function handler(req, res) {
-  const authHeader = req.headers.authorization
-  if (authHeader !== `Bearer ${process.env.PIPELINE_SECRET}`) {
+  if (req.headers.authorization !== `Bearer ${process.env.PIPELINE_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
  
   try {
-    console.log('Starting DiamondUT player sync v4...')
+    console.log('DiamondUT sync v5 starting...')
  
-    const [nflRanked, mlbRanked] = await Promise.all([
-      processNFL(),
-      processMLB()
-    ])
+    const nflRanked = await processNFL()
+    console.log(`NFL done: ${nflRanked.length} players`)
+ 
+    const mlbRanked = await processMLB()
+    console.log(`MLB done: ${mlbRanked.length} players`)
  
     await saveToSupabase([...nflRanked, ...mlbRanked])
  
-    // Tier breakdowns
     const nflBreakdown = {}, mlbBreakdown = {}
     nflRanked.forEach(p => { nflBreakdown[p.tier] = (nflBreakdown[p.tier]||0)+1 })
     mlbRanked.forEach(p => { mlbBreakdown[p.tier] = (mlbBreakdown[p.tier]||0)+1 })
  
-    // Top players per sport
-    const nflLegendary = nflRanked.filter(p => p.tier === 'legendary').map(p => `${p.name} (${p.position}) ${p.projected_points}pts/gm`)
-    const mlbLegendary = mlbRanked.filter(p => p.tier === 'legendary').map(p => `${p.name} (${p.position})`)
- 
-    console.log('\nNFL Legendaries:', nflLegendary)
-    console.log('MLB Legendaries:', mlbLegendary)
+    const nflLeg = nflRanked.filter(p => p.tier === 'legendary').map(p => `${p.name} (${p.position}) ${p.projected_points}ppg`)
+    const mlbLeg = mlbRanked.filter(p => p.tier === 'legendary').map(p => `${p.name} (${p.position})`)
  
     return res.status(200).json({
-      success:       true,
-      nfl_count:     nflRanked.length,
-      mlb_count:     mlbRanked.length,
-      total:         nflRanked.length + mlbRanked.length,
+      success: true,
+      nfl_count: nflRanked.length,
+      mlb_count: mlbRanked.length,
+      total: nflRanked.length + mlbRanked.length,
       nfl_breakdown: nflBreakdown,
       mlb_breakdown: mlbBreakdown,
-      nfl_legendary: nflLegendary,
-      mlb_legendary: mlbLegendary
+      nfl_legendary: nflLeg,
+      mlb_legendary: mlbLeg
     })
  
   } catch(err) {
@@ -408,3 +332,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+ 
