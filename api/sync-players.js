@@ -15,7 +15,8 @@ const supabase = createClient(
 )
  
 // Tell Vercel this function can run up to 60 seconds
-module.exports.config = { maxDuration: 60 }
+const config = { maxDuration: 60 }
+module.exports.config = config
  
 const NFL_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K']
 const MLB_POSITIONS = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
@@ -77,7 +78,8 @@ async function processNFL() {
   let statsRows = []
   for (const s of [season, season - 1]) {
     try {
-      const url = `https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_${s}.csv`
+      // Use season summary file — much smaller than weekly file
+      const url = `https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_season_${s}.csv`
       console.log(`Trying nflfastR ${s}...`)
       const res = await fetchWithTimeout(url, 20000)
       if (!res.ok) continue
@@ -114,42 +116,30 @@ function processNFLWithStats(statsRows, sleeperPlayers) {
     nameToSleeper[key] = p
   })
  
-  // Aggregate season stats per player
+  // Season summary — already totaled, one row per player
   const byPlayer = {}
   for (const row of statsRows) {
     const pos = row.position
     if (!pos || !NFL_POSITIONS.includes(pos)) continue
     const pid = row.player_id
     if (!pid) continue
- 
-    if (!byPlayer[pid]) {
-      byPlayer[pid] = {
-        pid, pos,
-        name:  row.player_display_name || row.player_name || '',
-        team:  row.recent_team || '',
-        games: 0,
-        pass_yd:0, pass_td:0, pass_int:0, pass_2pt:0,
-        rush_yd:0, rush_td:0, rush_2pt:0,
-        rec_yd:0,  rec_td:0,  rec:0,     rec_2pt:0,
-        fum_lost:0
-      }
+    byPlayer[pid] = {
+      pid, pos,
+      name:     row.player_display_name || row.player_name || '',
+      team:     row.recent_team || '',
+      games:    +row.games || 1,
+      pass_yd:  +row.passing_yards   || 0,
+      pass_td:  +row.passing_tds     || 0,
+      pass_int: +row.interceptions   || 0,
+      rush_yd:  +row.rushing_yards   || 0,
+      rush_td:  +row.rushing_tds     || 0,
+      rec_yd:   +row.receiving_yards || 0,
+      rec_td:   +row.receiving_tds   || 0,
+      rec:      +row.receptions      || 0,
+      fum_lost: (+row.sack_fumbles_lost || 0) + (+row.rushing_fumbles_lost || 0)
     }
- 
-    const p = byPlayer[pid]
-    p.games++
-    p.team     = row.recent_team || p.team
-    p.pass_yd  += +row.passing_yards   || 0
-    p.pass_td  += +row.passing_tds     || 0
-    p.pass_int += +row.interceptions   || 0
-    p.rush_yd  += +row.rushing_yards   || 0
-    p.rush_td  += +row.rushing_tds     || 0
-    p.rec_yd   += +row.receiving_yards || 0
-    p.rec_td   += +row.receiving_tds   || 0
-    p.rec      += +row.receptions      || 0
-    p.fum_lost += (+row.sack_fumbles_lost || 0) + (+row.rushing_fumbles_lost || 0)
   }
- 
-  console.log(`Aggregated ${Object.keys(byPlayer).length} NFL players`)
+  console.log(`Got ${Object.keys(byPlayer).length} NFL players from season summary`)
  
   // Score and match to Sleeper
   const scored = []
