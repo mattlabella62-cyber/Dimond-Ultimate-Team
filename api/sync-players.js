@@ -8,6 +8,11 @@
  
 const { createClient } = require('@supabase/supabase-js')
  
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+ 
 const NFL_POSITIONS    = ['QB', 'RB', 'WR', 'TE', 'K']
 const MLB_POSITIONS    = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
 const INJURED_STATUSES = ['Out', 'IR', 'IL', 'PUP', '60-Day IL', 'NFI', 'Suspended']
