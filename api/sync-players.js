@@ -7,6 +7,10 @@
 // ═══════════════════════════════════════════════════════
  
 const { createClient } = require('@supabase/supabase-js')
+ 
+const NFL_POSITIONS    = ['QB', 'RB', 'WR', 'TE', 'K']
+const MLB_POSITIONS    = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
+const INJURED_STATUSES = ['Out', 'IR', 'IL', 'PUP', '60-Day IL', 'NFI', 'Suspended']
 // ─── RANKING ENGINE (inlined) ───────────────────────
 // ═══════════════════════════════════════════════════════
 // DiamondUT Ranking Engine v2
@@ -814,3 +818,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+ 
