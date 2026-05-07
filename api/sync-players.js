@@ -1,11 +1,3 @@
-// ═══════════════════════════════════════════════════════
-// DiamondUT — Player Sync v5
-// api/sync-players.js
-//
-// Set maxDuration to 60 seconds for Vercel Pro
-// or use the split approach for free tier
-// ═══════════════════════════════════════════════════════
- 
 const { createClient } = require('@supabase/supabase-js')
  
 const supabase = createClient(
@@ -16,7 +8,8 @@ const supabase = createClient(
 const NFL_POSITIONS    = ['QB', 'RB', 'WR', 'TE', 'K']
 const MLB_POSITIONS    = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
 const INJURED_STATUSES = ['Out', 'IR', 'IL', 'PUP', '60-Day IL', 'NFI', 'Suspended']
-// ─── RANKING ENGINE (inlined) ───────────────────────
+ 
+// ─── RANKING ENGINE (inlined) ──────────────────────────
 // ═══════════════════════════════════════════════════════
 // DiamondUT Ranking Engine v2
 // api/ranking-engine.js
@@ -542,8 +535,9 @@ function rankPlayers(players, seasonStats, recentStats, matchupData, sport, scor
 }
  
  
+ 
 // ─── FETCH WITH TIMEOUT ────────────────────────────────
-async function fetchWithTimeout(url, timeoutMs = 30000) {
+async function fetchWithTimeout(url, timeoutMs = 25000) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
@@ -556,6 +550,24 @@ async function fetchWithTimeout(url, timeoutMs = 30000) {
   }
 }
  
+// ─── PARSE CSV ─────────────────────────────────────────
+function parseCSV(text) {
+  const lines   = text.trim().split('\n')
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''))
+  const rows    = []
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split(',')
+    if (vals.length < headers.length) continue
+    const row = {}
+    headers.forEach((h, idx) => {
+      const v = (vals[idx] || '').trim().replace(/"/g, '')
+      row[h] = v === '' || v === 'NA' ? null : v
+    })
+    rows.push(row)
+  }
+  return rows
+}
+ 
 // ─── FETCH SLEEPER PLAYERS ─────────────────────────────
 async function fetchSleeperPlayers(sport) {
   const res = await fetchWithTimeout(`https://api.sleeper.app/v1/players/${sport.toLowerCase()}`)
@@ -566,27 +578,24 @@ async function fetchSleeperPlayers(sport) {
 // ─── PROCESS NFL ───────────────────────────────────────
 async function processNFL() {
   console.log('Processing NFL...')
- 
   const now    = new Date()
   const year   = now.getFullYear()
   const month  = now.getMonth() + 1
   const season = month <= 2 ? year - 1 : year
  
-  // Fetch Sleeper players first (fast)
   const sleeperPlayers = await fetchSleeperPlayers('nfl')
  
-  // Try nflfastR CSV for real stats
+  // Try nflfastR season summary CSV
   let statsRows = []
   for (const s of [season, season - 1]) {
     try {
-      // Use season summary file — much smaller than weekly file
       const url = `https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats_season_${s}.csv`
       console.log(`Trying nflfastR ${s}...`)
       const res = await fetchWithTimeout(url, 20000)
       if (!res.ok) continue
       const text = await res.text()
       statsRows = parseCSV(text)
-      if (statsRows.length > 100) {
+      if (statsRows.length > 50) {
         console.log(`Got ${statsRows.length} rows for ${s}`)
         break
       }
@@ -595,21 +604,18 @@ async function processNFL() {
     }
   }
  
-  // If we got real stats — use them
-  if (statsRows.length > 100) {
+  if (statsRows.length > 50) {
     return processNFLWithStats(statsRows, sleeperPlayers)
   }
  
-  // Fallback to Sleeper position ranking
   console.log('Using Sleeper position ranking fallback')
   return processNFLFallback(sleeperPlayers)
 }
  
-// NFL with real nflfastR stats
+// NFL with real stats
 function processNFLWithStats(statsRows, sleeperPlayers) {
   const scoring = NFL_SCORING.half_ppr
  
-  // Build Sleeper lookup by name
   const nameToSleeper = {}
   Object.values(sleeperPlayers).forEach(p => {
     if (!p.first_name || !p.last_name) return
@@ -617,7 +623,6 @@ function processNFLWithStats(statsRows, sleeperPlayers) {
     nameToSleeper[key] = p
   })
  
-  // Season summary — already totaled, one row per player
   const byPlayer = {}
   for (const row of statsRows) {
     const pos = row.position
@@ -640,21 +645,18 @@ function processNFLWithStats(statsRows, sleeperPlayers) {
       fum_lost: (+row.sack_fumbles_lost || 0) + (+row.rushing_fumbles_lost || 0)
     }
   }
+ 
   console.log(`Got ${Object.keys(byPlayer).length} NFL players from season summary`)
  
-  // Score and match to Sleeper
   const scored = []
   for (const stats of Object.values(byPlayer)) {
     if (!stats.team || stats.team === 'FA' || stats.games === 0) continue
- 
     const nameKey = stats.name.toLowerCase().replace(/[^a-z ]/g, '')
     const sleeper = nameToSleeper[nameKey]
     const sleeperTeam = sleeper?.team || stats.team
     if (!sleeperTeam || sleeperTeam === 'FA') continue
- 
     const seasonPts = calcNFLScore(stats, scoring)
     const avgPts    = seasonPts / stats.games
- 
     scored.push({
       sleeper_id:     sleeper?.player_id || `nfl_${stats.pid}`,
       name:           stats.name,
@@ -671,7 +673,7 @@ function processNFLWithStats(statsRows, sleeperPlayers) {
   return rankAndTier(scored, 'NFL', false)
 }
  
-// NFL fallback using Sleeper search_rank
+// NFL fallback
 function processNFLFallback(sleeperPlayers) {
   const scored = Object.values(sleeperPlayers)
     .filter(p =>
@@ -692,7 +694,6 @@ function processNFLFallback(sleeperPlayers) {
       search_rank:    p.search_rank || 999999,
       headshot_url:   `https://sleepercdn.com/content/nfl/players/thumb/${p.player_id}.jpg`
     }))
- 
   return rankAndTier(scored, 'NFL', true)
 }
  
@@ -700,7 +701,6 @@ function processNFLFallback(sleeperPlayers) {
 async function processMLB() {
   console.log('Processing MLB...')
   const sleeperPlayers = await fetchSleeperPlayers('mlb')
- 
   const scored = Object.values(sleeperPlayers)
     .filter(p =>
       p.team && p.team !== 'FA' && p.team !== '' &&
@@ -720,7 +720,6 @@ async function processMLB() {
       search_rank:    p.search_rank || 999999,
       headshot_url:   `https://sleepercdn.com/content/mlb/players/thumb/${p.player_id}.jpg`
     }))
- 
   console.log(`Active MLB players: ${scored.length}`)
   return rankAndTier(scored, 'MLB', true)
 }
@@ -729,7 +728,6 @@ async function processMLB() {
 function rankAndTier(players, sport, useSearchRank) {
   const positions = sport === 'NFL' ? NFL_POSITIONS : MLB_POSITIONS
   const ranked    = []
- 
   for (const pos of positions) {
     const atPos = players
       .filter(p => p.position === pos)
@@ -737,9 +735,7 @@ function rankAndTier(players, sport, useSearchRank) {
         ? (a.search_rank || 999999) - (b.search_rank || 999999)
         : b.seasonAvgPts - a.seasonAvgPts
       )
- 
     console.log(`${pos}: ${atPos.length} players`)
- 
     atPos.forEach((p, idx) => {
       const tier = assignTier(idx + 1, pos, sport)
       ranked.push({
@@ -760,7 +756,6 @@ function rankAndTier(players, sport, useSearchRank) {
       })
     })
   }
- 
   return ranked
 }
  
@@ -770,7 +765,6 @@ async function saveToSupabase(players) {
   players.forEach(p => seen.set(p.sleeper_id, p))
   const deduped = Array.from(seen.values())
   console.log(`Saving ${deduped.length} players...`)
- 
   const batchSize = 250
   for (let i = 0; i < deduped.length; i += batchSize) {
     const batch = deduped.slice(i, i + batchSize)
@@ -779,7 +773,6 @@ async function saveToSupabase(players) {
       .upsert(batch, { onConflict: 'sleeper_id', ignoreDuplicates: false })
     if (error) throw new Error(`Batch ${i} error: ${error.message}`)
   }
- 
   console.log('Save complete')
 }
  
@@ -788,25 +781,18 @@ module.exports = async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.PIPELINE_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
- 
   try {
     console.log('DiamondUT sync v5 starting...')
- 
     const nflRanked = await processNFL()
     console.log(`NFL done: ${nflRanked.length} players`)
- 
     const mlbRanked = await processMLB()
     console.log(`MLB done: ${mlbRanked.length} players`)
- 
     await saveToSupabase([...nflRanked, ...mlbRanked])
- 
     const nflBreakdown = {}, mlbBreakdown = {}
     nflRanked.forEach(p => { nflBreakdown[p.tier] = (nflBreakdown[p.tier]||0)+1 })
     mlbRanked.forEach(p => { mlbBreakdown[p.tier] = (mlbBreakdown[p.tier]||0)+1 })
- 
     const nflLeg = nflRanked.filter(p => p.tier === 'legendary').map(p => `${p.name} (${p.position}) ${p.projected_points}ppg`)
     const mlbLeg = mlbRanked.filter(p => p.tier === 'legendary').map(p => `${p.name} (${p.position})`)
- 
     return res.status(200).json({
       success: true,
       nfl_count: nflRanked.length,
@@ -817,7 +803,6 @@ module.exports = async function handler(req, res) {
       nfl_legendary: nflLeg,
       mlb_legendary: mlbLeg
     })
- 
   } catch(err) {
     console.error('Sync error:', err)
     return res.status(500).json({ error: err.message })
