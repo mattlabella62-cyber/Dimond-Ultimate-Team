@@ -14,11 +14,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
  
-      - name: Remove node_modules if exists
-        run: rm -rf node_modules
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+ 
+      - name: Install dependencies
+        run: npm install @supabase/supabase-js ws
  
       - name: Run player sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/sync-players-action.js
+ 
