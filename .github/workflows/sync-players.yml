@@ -1,16 +1,9 @@
 name: DiamondUT Player Sync
  
 on:
-  # Runs every Monday at 6am UTC
   schedule:
     - cron: '0 6 * * 1'
-  # Also allows manual trigger from GitHub Actions tab
   workflow_dispatch:
-    inputs:
-      sport:
-        description: 'Sport to sync (nfl, mlb, or both)'
-        required: false
-        default: 'both'
  
 jobs:
   sync-players:
@@ -21,18 +14,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
  
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
- 
-      - name: Install dependencies
-        run: npm install @supabase/supabase-js
- 
       - name: Run player sync
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         run: node scripts/sync-players-action.js
- 
