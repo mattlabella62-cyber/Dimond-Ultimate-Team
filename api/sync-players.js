@@ -8,6 +8,8 @@ const supabase = createClient(
 const NFL_POSITIONS    = ['QB', 'RB', 'WR', 'TE', 'K']
 const MLB_POSITIONS    = ['C', '1B', '2B', '3B', 'SS', 'OF', 'SP', 'RP']
 const INJURED_STATUSES = ['Out', 'IR', 'IL', 'PUP', '60-Day IL', 'NFI', 'Suspended']
+const VALID_NFL_TEAMS  = ['ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LA','LAC','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS']
+const VALID_MLB_TEAMS  = ['ARI','ATL','BAL','BOS','CHC','CWS','CIN','CLE','COL','DET','HOU','KC','LAA','LAD','MIA','MIL','MIN','NYM','NYY','OAK','PHI','PIT','SD','SEA','SF','STL','TB','TEX','TOR','WSH']
  
 // ─── RANKING ENGINE (inlined) ──────────────────────────
 // ═══════════════════════════════════════════════════════
@@ -677,8 +679,8 @@ function processNFLWithStats(statsRows, sleeperPlayers) {
 function processNFLFallback(sleeperPlayers) {
   const scored = Object.values(sleeperPlayers)
     .filter(p =>
-      p.team && p.team !== 'FA' && p.team !== '' &&
-      p.active !== false &&
+      p.team && VALID_NFL_TEAMS.includes(p.team) &&
+      p.active === true &&
       p.position && NFL_POSITIONS.includes(p.position) &&
       p.first_name && p.last_name
     )
@@ -703,8 +705,8 @@ async function processMLB() {
   const sleeperPlayers = await fetchSleeperPlayers('mlb')
   const scored = Object.values(sleeperPlayers)
     .filter(p =>
-      p.team && p.team !== 'FA' && p.team !== '' &&
-      p.active !== false &&
+      p.team && VALID_MLB_TEAMS.includes(p.team) &&
+      p.active === true &&
       p.position && MLB_POSITIONS.includes(p.position) &&
       p.first_name && p.last_name
     )
