@@ -6,18 +6,11 @@
 // No WebSocket issues, works on any Node version
 // ═══════════════════════════════════════════════════════
  
-const https  = require('https')
-const http   = require('http')
-const ws     = require('ws')
-const { createClient } = require('@supabase/supabase-js')
+const https = require('https')
+const http  = require('http')
  
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
- 
-// Use Supabase client with ws for Node < 22
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  realtime: { transport: ws }
-})
  
 // ─── CONSTANTS ─────────────────────────────────────────
 const NFL_POSITIONS    = ['QB', 'RB', 'WR', 'TE', 'K']
@@ -100,9 +93,34 @@ function fetchURL(url) {
 }
  
 // ─── SUPABASE REST (plain HTTPS — no client needed) ────
-async function supabaseUpsert(table, rows) {
-  const { error } = await supabase.from(table).upsert(rows, { onConflict: 'sleeper_id' })
-  if (error) throw new Error(`Supabase error: ${error.message}`)
+function supabaseUpsert(table, rows) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify(rows)
+    const urlObj = new URL(`${SUPABASE_URL}/rest/v1/${table}`)
+    const options = {
+      hostname: urlObj.hostname,
+      path: urlObj.pathname + '?on_conflict=sleeper_id',
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    }
+    const req = https.request(options, res => {
+      let data = ''
+      res.on('data', chunk => data += chunk)
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(data)
+        else reject(new Error(`Supabase ${res.statusCode}: ${data}`))
+      })
+    })
+    req.on('error', reject)
+    req.write(body)
+    req.end()
+  })
 }
  
 // ─── PARSE CSV ─────────────────────────────────────────
