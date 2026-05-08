@@ -33,5 +33,6 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         run: node scripts/sync-players-action.js
  
