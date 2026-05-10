@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiamondUT — My Roster</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c12;
+    --surface: #0e1520;
+    --surface2: #141d2e;
+    --surface3: #1a2540;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8edf5;
+    --muted: #6b7a96;
+    --accent: #3a8fff;
+    --accent-glow: rgba(58,143,255,0.25);
+
+    --bronze: #cd7f32;
+    --bronze-glow: rgba(205,127,50,0.3);
+    --silver: #a8b8cc;
+    --silver-glow: rgba(168,184,204,0.3);
+    --gold: #ffd700;
+    --gold-glow: rgba(255,215,0,0.35);
+    --platinum: #e5f0ff;
+    --platinum-glow: rgba(180,220,255,0.4);
+    --legendary: #ff6bff;
+    --legendary-glow: rgba(255,107,255,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(58,143,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58,143,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 58px;
+    background: rgba(8,12,18,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links { display: flex; gap: 6px; }
+  .nav-links a {
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s, background 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--surface2); }
+  .nav-links a.active { color: var(--text); background: var(--surface2); }
+
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .coin-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold);
+  }
+  .coin-display::before { content: '◆'; font-size: 0.7rem; }
+
+  /* ─── HEADER ─── */
+  .page-header {
+    position: relative;
+    z-index: 1;
+    padding: 40px 28px 0;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 3.8rem);
+    letter-spacing: 3px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .page-title span {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--accent);
+  }
+
+  .header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .league-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .week-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  /* ─── TABS ─── */
+  .tabs-bar {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 28px auto 0;
+    padding: 0 28px;
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 28px 80px;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+  }
+
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .sidebar { order: -1; }
+  }
+
+  /* ─── SPORT SECTION ─── */
+  .sport-section { margin-bottom: 32px; }
+
+  .sport-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .sport-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+  }
+  .sport-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  .sport-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .sport-divider {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin-left: 8px;
+  }
+
+  /* ─── POSITION SLOTS ─── */
+  .slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .slot {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    overflow: hidden;
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+  }
+  .slot:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+  .slot.filled:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.4); }
+  .slot.empty {
+    border-style: dashed;
+    border-color: rgba(255,255,255,0.09);
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  /* Tier glow strip */
+  .slot::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .slot.tier-bronze::before { background: var(--bronze); opacity: 1; }
+  .slot.tier-silver::before { background: var(--silver); opacity: 1; }
+  .slot.tier-gold::before { background: var(--gold); opacity: 1; }
+  .slot.tier-platinum::before { background: var(--platinum); opacity: 1; }
+  .slot.tier-legendary::before { background: var(--legendary); opacity: 1; }
+
+  /* Subtle tier glow bg */
+  .slot.tier-gold { box-shadow: inset 0 0 40px rgba(255,215,0,0.04); }
+  .slot.tier-platinum { box-shadow: inset 0 0 40px rgba(180,220,255,0.06); }
+  .slot.tier-legendary { box-shadow: inset 0 0 40px rgba(255,107,255,0.07); }
+
+  .slot-pos {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .slot-art {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    opacity: 0.15;
+    margin-bottom: 8px;
+  }
+  .slot.filled .slot-art { opacity: 1; }
+
+  .slot-player-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .slot-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .slot-team {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .slot-tier-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tier-bronze .slot-tier-badge { background: rgba(205,127,50,0.2); color: var(--bronze); }
+  .tier-silver .slot-tier-badge { background: rgba(168,184,204,0.2); color: var(--silver); }
+  .tier-gold .slot-tier-badge { background: rgba(255,215,0,0.2); color: var(--gold); }
+  .tier-platinum .slot-tier-badge { background: rgba(180,220,255,0.2); color: var(--platinum); }
+  .tier-legendary .slot-tier-badge { background: rgba(255,107,255,0.2); color: var(--legendary); }
+
+  .slot-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 6px;
+  }
+
+  .slot-empty-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: center;
+    margin: auto;
+    padding: 20px 0;
+  }
+
+  .slot-actions {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(8,12,18,0.88);
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-direction: column;
+  }
+  .slot.filled:hover .slot-actions { display: flex; }
+
+  .action-btn {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    width: 90%;
+    text-align: center;
+  }
+  .action-btn:hover { background: var(--surface3); }
+  .action-btn.danger { color: #ff5f5f; border-color: rgba(255,95,95,0.3); }
+  .action-btn.danger:hover { background: rgba(255,95,95,0.1); }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  .panel-action {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* Score panel */
+  .score-grid {
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .score-stat { text-align: center; }
+  .score-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 1px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .score-val.highlight { color: var(--accent); }
+  .score-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .score-divider { grid-column: 1/-1; height: 1px; background: var(--border); }
+
+  /* Matchup */
+  .matchup-row {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .matchup-team {
+    flex: 1;
+    text-align: center;
+  }
+  .matchup-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+  .matchup-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .matchup-vs {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+  .matchup-bar {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin: 0 18px 14px;
+    overflow: hidden;
+  }
+  .matchup-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #7b5fff);
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  /* Leaderboard */
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row:hover { background: var(--surface2); }
+  .lb-row.you { background: rgba(58,143,255,0.06); }
+
+  .lb-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    width: 20px;
+    text-align: right;
+  }
+  .lb-rank.top { color: var(--gold); }
+  .lb-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .lb-name {
+    flex: 1;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+  .lb-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* Bench */
+  .bench-list { padding: 8px 0; }
+  .bench-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .bench-card:last-child { border-bottom: none; }
+  .bench-card:hover { background: var(--surface2); }
+  .bench-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .bench-info { flex: 1; min-width: 0; }
+  .bench-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bench-sub {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .bench-tier-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-bronze { background: var(--bronze); }
+  .dot-silver { background: var(--silver); }
+  .dot-gold { background: var(--gold); }
+  .dot-platinum { background: var(--platinum); }
+  .dot-legendary { background: var(--legendary); }
+
+  /* ─── TOAST ─── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 999;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    max-width: 320px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    width: min(480px, 94vw);
+    overflow: hidden;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 20px 22px; }
+  .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    border: none;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-ghost { background: var(--surface2); color: var(--text); }
+  .btn-ghost:hover { background: var(--surface3); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #5aa3ff; }
+  .btn-danger { background: rgba(255,95,95,0.15); color: #ff5f5f; }
+  .btn-danger:hover { background: rgba(255,95,95,0.25); }
+
+  /* Player detail in modal */
+  .player-card-preview {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .pcp-icon { font-size: 2.5rem; }
+  .pcp-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 1.5px; }
+  .pcp-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.83rem;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row span:first-child { color: var(--muted); }
+  .stat-row span:last-child { font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+
+  /* Stagger animation */
+  .slot { animation: fadeSlot 0.4s ease backwards; }
+  @keyframes fadeSlot {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <a class="nav-logo" href="/">Diamond<span>UT</span></a>
+  <div class="nav-links">
+    <a href="#">Pack</a>
+    <a href="#" class="active">Roster</a>
+    <a href="#">Auction</a>
+    <a href="#">Standings</a>
+  </div>
+  <div class="nav-right">
+    <div class="coin-display">1,240</div>
+  </div>
+</nav>
+
+<!-- ─── HEADER ─── -->
+<div class="page-header">
+  <h1 class="page-title">My <span>Roster</span></h1>
+  <div class="header-meta">
+    <div class="league-badge">Smash Bros League · Season 1</div>
+    <div class="week-label">Week 8 of 17</div>
+  </div>
+</div>
+
+<!-- ─── TABS ─── -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('mlb', this)">⚾ MLB</button>
+  <button class="tab-btn" onclick="switchTab('nfl', this)">🏈 NFL</button>
+</div>
+
+<!-- ─── MAIN ─── -->
+<div class="main">
+
+  <!-- LEFT: Slots -->
+  <div class="roster-col">
+
+    <!-- MLB Tab -->
+    <div id="tab-mlb">
+
+      <div class="sport-section">
+        <div class="sport-header">
+          <div class="sport-icon">⚾</div>
+          <div class="sport-title">Starting Lineup</div>
+          <div class="sport-divider"></div>
+          <div class="sport-count">7 / 9 filled</div>
+        </div>
+        <div class="slots-grid" id="mlb-slots"></div>
+      </div>
+
+      <div class="sport-section">
+        <div class="sport-header">
+          <div class="sport-icon">🔄</div>
+          <div class="sport-title">Pitching Staff</div>
+          <div class="sport-divider"></div>
+          <div class="sport-count">3 / 4 filled</div>
+        </div>
+        <div class="slots-grid" id="mlb-pitch-slots"></div>
+      </div>
+
+    </div>
+
+    <!-- NFL Tab -->
+    <div id="tab-nfl" style="display:none">
+      <div class="sport-section">
+        <div class="sport-header">
+          <div class="sport-icon">🏈</div>
+          <div class="sport-title">Active Roster</div>
+          <div class="sport-divider"></div>
+          <div class="sport-count">6 / 9 filled</div>
+        </div>
+        <div class="slots-grid" id="nfl-slots"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Sidebar -->
+  <div class="sidebar">
+
+    <!-- Weekly Score -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Week 8 Score</div>
+        <a class="panel-action" href="#">History →</a>
+      </div>
+      <div class="score-grid">
+        <div class="score-stat">
+          <div class="score-val highlight">284</div>
+          <div class="score-label">Your Pts</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-val">261</div>
+          <div class="score-label">Opp Pts</div>
+        </div>
+        <div class="score-divider"></div>
+        <div class="score-stat">
+          <div class="score-val">6-2</div>
+          <div class="score-label">Record</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-val" style="color:var(--gold)">2nd</div>
+          <div class="score-label">Standing</div>
+        </div>
+      </div>
+
+      <!-- Matchup bar -->
+      <div class="matchup-row">
+        <div class="matchup-team">
+          <div class="matchup-name" style="color:var(--accent)">YOU</div>
+          <div class="matchup-pts">284 pts</div>
+        </div>
+        <div class="matchup-vs">VS</div>
+        <div class="matchup-team">
+          <div class="matchup-name">Jake's Squad</div>
+          <div class="matchup-pts">261 pts</div>
+        </div>
+      </div>
+      <div class="matchup-bar" style="margin:0 18px 14px">
+        <div class="matchup-fill" style="width:52%"></div>
+      </div>
+    </div>
+
+    <!-- Standings -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">League</div>
+        <a class="panel-action" href="#">Full table →</a>
+      </div>
+      <div id="leaderboard"></div>
+    </div>
+
+    <!-- Bench -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Bench</div>
+        <span class="panel-action" onclick="showToast('📦 Pack opening opens Sunday!')">Open Pack →</span>
+      </div>
+      <div class="bench-list" id="bench-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── PLAYER DETAIL MODAL ─── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Player Details</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="showToast('Player released to pool.'); closeModal()">Release</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      <button class="btn btn-primary" onclick="showToast('Card listed for trade!'); closeModal()">Trade →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div id="toast">⚡ Action complete</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────
+const MLB_BATTERS = [
+  { pos:'C',  name:'W. Contreras', team:'STL', tier:'silver', pts:24, emoji:'🎯', coins:25 },
+  { pos:'1B', name:'F. Freeman',   team:'LAD', tier:'gold',   pts:41, emoji:'⚡', coins:60 },
+  { pos:'2B', name:'J. Lowe',      team:'TB',  tier:'bronze', pts:18, emoji:'💪', coins:10 },
+  { pos:'3B', name:'N. Arenado',   team:'STL', tier:'gold',   pts:36, emoji:'🔥', coins:60 },
+  { pos:'SS', name:'C. Seager',    team:'TEX', tier:'platinum', pts:52, emoji:'💎', coins:90 },
+  { pos:'OF', name:'R. Acuña Jr.', team:'ATL', tier:'platinum', pts:49, emoji:'⚡', coins:90 },
+  { pos:'OF', name:'J. Soto',      team:'NYY', tier:'gold',   pts:38, emoji:'🏅', coins:60 },
+  { pos:'OF', name:null,           team:null,  tier:null,     pts:0,  emoji:'',   coins:0 },
+  { pos:'DH', name:null,           team:null,  tier:null,     pts:0,  emoji:'',   coins:0 },
+];
+
+const MLB_PITCHERS = [
+  { pos:'SP', name:'G. Cole',       team:'NYY', tier:'gold',   pts:33, emoji:'🌀', coins:60 },
+  { pos:'SP', name:'C. Burnes',     team:'BAL', tier:'silver', pts:27, emoji:'🌀', coins:25 },
+  { pos:'RP', name:'E. Díaz',       team:'NYM', tier:'silver', pts:22, emoji:'⚡', coins:25 },
+  { pos:'CL', name:null,            team:null,  tier:null,     pts:0,  emoji:'',   coins:0 },
+];
+
+const NFL_PLAYERS = [
+  { pos:'QB', name:'J. Burrow',     team:'CIN', tier:'gold',     pts:44, emoji:'🏈', coins:60 },
+  { pos:'RB', name:'D. Henry',      team:'TEN', tier:'silver',   pts:28, emoji:'💨', coins:25 },
+  { pos:'RB', name:null,            team:null,  tier:null,       pts:0,  emoji:'',   coins:0 },
+  { pos:'WR', name:'J. Jefferson',  team:'MIN', tier:'platinum', pts:51, emoji:'⚡', coins:90 },
+  { pos:'WR', name:'D. Adams',      team:'LV',  tier:'gold',     pts:37, emoji:'🔥', coins:60 },
+  { pos:'TE', name:'T. Kelce',      team:'KC',  tier:'legendary',pts:63, emoji:'👑', coins:100 },
+  { pos:'K',  name:'J. Tucker',     team:'BAL', tier:'bronze',   pts:15, emoji:'🎯', coins:10 },
+  { pos:'DEF',name:'SF Defense',    team:'SF',  tier:'silver',   pts:24, emoji:'🛡️', coins:25 },
+  { pos:'FLEX',name:null,           team:null,  tier:null,       pts:0,  emoji:'',   coins:0 },
+];
+
+const BENCH = [
+  { name:'M. Olson',   pos:'1B', team:'ATL', tier:'bronze', emoji:'💪' },
+  { name:'P. Corbin',  pos:'SP', team:'WSH', tier:'bronze', emoji:'🌀' },
+  { name:'T. Anderson',pos:'SS', team:'CWS', tier:'silver', emoji:'⚡' },
+  { name:'K. Murray',  pos:'QB', team:'ARI', tier:'bronze', emoji:'🏈' },
+];
+
+const LEAGUE = [
+  { name:'The Naturals',  pts:311, you:false },
+  { name:'YOU',           pts:284, you:true  },
+  { name:'Jake\'s Squad', pts:261, you:false },
+  { name:'Bombers',       pts:248, you:false },
+  { name:'Daily Deals',   pts:233, you:false },
+  { name:'Clutch Kings',  pts:218, you:false },
+];
+
+// ─── RENDER ─────────────────────────────────────────────
+function renderSlots(data, containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  data.forEach((p, i) => {
+    const delay = i * 40;
+    if (!p.name) {
+      el.innerHTML += `
+        <div class="slot empty" style="animation-delay:${delay}ms">
+          <div class="slot-pos">${p.pos}</div>
+          <div class="slot-empty-label">Empty slot<br><small>Open a pack or check auction</small></div>
+        </div>`;
+    } else {
+      el.innerHTML += `
+        <div class="slot filled tier-${p.tier}" style="animation-delay:${delay}ms" onclick="openModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+          <div class="slot-pos">${p.pos}</div>
+          <div class="slot-art">${p.emoji}</div>
+          <div class="slot-player-name">${p.name}</div>
+          <div class="slot-meta">
+            <span class="slot-team">${p.team}</span>
+            <span class="slot-tier-badge">${p.tier}</span>
+          </div>
+          <div class="slot-pts">+${p.pts} pts</div>
+          <div class="slot-actions">
+            <div class="action-btn" onclick="event.stopPropagation(); showToast('Opening swap tool...')">🔄 Swap</div>
+            <div class="action-btn" onclick="event.stopPropagation(); showToast('Card listed for trade!')">↔️ Trade</div>
+            <div class="action-btn danger" onclick="event.stopPropagation(); showToast('Player released.')">✕ Release</div>
+          </div>
+        </div>`;
+    }
+  });
+}
+
+function renderLeaderboard() {
+  const el = document.getElementById('leaderboard');
+  el.innerHTML = LEAGUE.map((t, i) => `
+    <div class="lb-row${t.you ? ' you' : ''}">
+      <div class="lb-rank${i < 3 ? ' top' : ''}">${i+1}</div>
+      <div class="lb-avatar">${t.name.slice(0,2).toUpperCase()}</div>
+      <div class="lb-name" style="${t.you ? 'color:var(--accent);font-weight:700' : ''}">${t.name}</div>
+      <div class="lb-pts">${t.pts}</div>
+    </div>`).join('');
+}
+
+function renderBench() {
+  const el = document.getElementById('bench-list');
+  el.innerHTML = BENCH.map(p => `
+    <div class="bench-card" onclick="showToast('Move ${p.name} to active roster?')">
+      <div class="bench-icon">${p.emoji}</div>
+      <div class="bench-info">
+        <div class="bench-name">${p.name}</div>
+        <div class="bench-sub">${p.pos} · ${p.team}</div>
+      </div>
+      <div class="bench-tier-dot dot-${p.tier}"></div>
+    </div>`).join('');
+}
+
+// ─── MODAL ──────────────────────────────────────────────
+function openModal(p) {
+  if (typeof p === 'string') p = JSON.parse(p);
+  document.getElementById('modal-title').textContent = p.name;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="player-card-preview">
+      <div class="pcp-icon">${p.emoji}</div>
+      <div>
+        <div class="pcp-name">${p.name}</div>
+        <div class="pcp-meta">${p.pos} · ${p.team} · <span style="color:var(--${p.tier})">${p.tier.toUpperCase()}</span></div>
+      </div>
+    </div>
+    <div class="stat-row"><span>Week Points</span><span style="color:var(--accent)">+${p.pts} pts</span></div>
+    <div class="stat-row"><span>Card Value</span><span style="color:var(--gold)">${p.coins} coins</span></div>
+    <div class="stat-row"><span>Status</span><span style="color:#4cff8f">Active ✓</span></div>
+    <div class="stat-row"><span>Season Total</span><span>${Math.floor(p.pts * 6.4)} pts</span></div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// ─── TABS ────────────────────────────────────────────────
+function switchTab(sport, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-mlb').style.display = sport === 'mlb' ? '' : 'none';
+  document.getElementById('tab-nfl').style.display = sport === 'nfl' ? '' : 'none';
+}
+
+// ─── TOAST ───────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── INIT ────────────────────────────────────────────────
+renderSlots(MLB_BATTERS, 'mlb-slots');
+renderSlots(MLB_PITCHERS, 'mlb-pitch-slots');
+renderSlots(NFL_PLAYERS, 'nfl-slots');
+renderLeaderboard();
+renderBench();
+</script>
+</body>
+</html>
